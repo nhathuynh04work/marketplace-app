@@ -1,0 +1,59 @@
+# /backend/.gitignore
+
+# --- General ---
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+
+# --- Rails & Ruby ---
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+*.pid
+
+# --- Configuration & Secrets (CRITICAL) ---
+# Ignore all environment variable files
+.env
+.env*.local
+.env.production
+.env.development
+.env.test
+
+# Ignore Master Key for Encrypted Credentials
+config/master.key
+config/credentials/*.key
+
+# --- Dependencies ---
+# If you bundle install locally into vendor
+/vendor/bundle/
+/vendor/ruby/
+
+# --- Database ---
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/db/*.sqlite3-shm
+/db/*.wal
+
+# --- Active Storage (Local Uploads) ---
+# Keeps the folder structure but ignores actual file uploads
+/storage/*
+!/storage/.keep
+/public/system
+
+# --- Documentation & Coverage ---
+/coverage/
+/doc/
+.yardoc/
+
+# --- IDEs & Editors ---
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# --- Docker ---
+# Ignore local overrides if you use them later
+docker-compose.override.yml
