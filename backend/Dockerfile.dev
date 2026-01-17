@@ -1,0 +1,34 @@
+FROM ruby:3.3.6-slim
+
+# 1. Install system dependencies
+# - build-essential/git/pkg-config: For compiling gems
+# - libpq-dev: For Postgres connection
+# - libvips: For ActiveStorage image processing (Rails 8 standard)
+# - curl: For healthchecks
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+    build-essential \
+    git \
+    libpq-dev \
+    libvips \
+    pkg-config \
+    curl && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# 2. Set the working directory
+WORKDIR /rails
+
+# 3. Install gems
+# We copy these first to leverage Docker caching. 
+# If Gemfile doesn't change, this step is skipped on re-builds.
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+# 4. Copy application code
+COPY . .
+
+# 5. Expose the port
+EXPOSE 3000
+
+# 6. Default command (can be overridden by docker-compose)
+CMD ["rails", "server", "-b", "0.0.0.0"]
