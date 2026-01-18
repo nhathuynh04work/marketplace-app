@@ -57,3 +57,5 @@ config/credentials/*.key
 # --- Docker ---
 # Ignore local overrides if you use them later
 docker-compose.override.yml
+
+.REST

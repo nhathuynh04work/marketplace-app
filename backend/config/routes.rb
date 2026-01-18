@@ -9,6 +9,10 @@ Rails.application.routes.draw do
     registrations: "users/registrations"
   }
 
+  devise_scope :user do
+    post "signup", to: "users/registrations#create"
+  end
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 end
