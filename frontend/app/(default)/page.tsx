@@ -45,8 +45,6 @@ const PRODUCTS = [
 export default function Home() {
 	return (
 		<div className="min-h-screen bg-background">
-			<Header />
-
 			<main className="container mx-auto py-8 px-4">
 				{/* Hero Section */}
 				<section className="mb-12 rounded-2xl bg-linear-to-r from-primary/10 to-secondary/10 p-8 text-center md:text-left md:p-12">

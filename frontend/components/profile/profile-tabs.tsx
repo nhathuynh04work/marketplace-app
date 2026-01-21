@@ -115,7 +115,7 @@ export default function ProfileTabs({
 									<Button
 										className="w-full"
 										onClick={() =>
-											router.push("/vendor/dashboard")
+											router.push("/vendor")
 										}>
 										Go to Shop Dashboard
 									</Button>
