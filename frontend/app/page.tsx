@@ -1,65 +1,105 @@
+import Header from "@/components/layout/header";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
+const PRODUCTS = [
+	{
+		id: 1,
+		name: "Wireless Headphones",
+		price: "$199",
+		image: "https://placehold.co/400x400/18181b/ffffff?text=Headphones",
+	},
+	{
+		id: 2,
+		name: "Mechanical Keyboard",
+		price: "$120",
+		image: "https://placehold.co/400x400/18181b/ffffff?text=Keyboard",
+	},
+	{
+		id: 3,
+		name: "Gaming Mouse",
+		price: "$59",
+		image: "https://placehold.co/400x400/18181b/ffffff?text=Mouse",
+	},
+	{
+		id: 4,
+		name: "4K Monitor",
+		price: "$350",
+		image: "https://placehold.co/400x400/18181b/ffffff?text=Monitor",
+	},
+	{
+		id: 5,
+		name: "Ergonomic Chair",
+		price: "$299",
+		image: "https://placehold.co/400x400/18181b/ffffff?text=Chair",
+	},
+	{
+		id: 6,
+		name: "USB-C Hub",
+		price: "$45",
+		image: "https://placehold.co/400x400/18181b/ffffff?text=Hub",
+	},
+];
+
 export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+	return (
+		<div className="min-h-screen bg-background">
+			<Header />
+
+			<main className="container mx-auto py-8 px-4">
+				{/* Hero Section */}
+				<section className="mb-12 rounded-2xl bg-linear-to-r from-primary/10 to-secondary/10 p-8 text-center md:text-left md:p-12">
+					<h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
+						Welcome to Marketplace
+					</h1>
+					<p className="text-xl text-muted-foreground mb-8 max-w-2xl">
+						Discover the best deals on electronics, fashion, and
+						more. Start selling your own products today.
+					</p>
+					<Button size="lg" className="rounded-full">
+						Explore Deals
+					</Button>
+				</section>
+
+				{/* Product Grid */}
+				<section>
+					<h2 className="text-2xl font-bold tracking-tight mb-6">
+						Featured Products
+					</h2>
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+						{PRODUCTS.map((product) => (
+							<Card
+								key={product.id}
+								className="overflow-hidden border-border/50 bg-secondary/20">
+								<div className="aspect-square relative bg-secondary/50">
+									<Image
+										src={product.image}
+										alt={product.name}
+										fill
+										className="object-cover transition-transform hover:scale-105"
+									/>
+								</div>
+								<CardContent className="p-4">
+									<h3 className="font-semibold truncate">
+										{product.name}
+									</h3>
+									<p className="text-lg font-bold text-primary mt-1">
+										{product.price}
+									</p>
+								</CardContent>
+								<CardFooter className="p-4 pt-0">
+									<Button
+										className="w-full"
+										variant="secondary">
+										Add to Cart
+									</Button>
+								</CardFooter>
+							</Card>
+						))}
+					</div>
+				</section>
+			</main>
+		</div>
+	);
 }

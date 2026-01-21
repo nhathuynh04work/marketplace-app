@@ -1,5 +1,6 @@
 "use server";
 
+import { API_URL } from "@/lib/api";
 import { createSession } from "@/lib/session";
 import { APIResponse } from "@/types/api";
 import { FormState } from "@/types/form";
@@ -12,16 +13,13 @@ export async function loginAction(
 	const password = formData.get("password");
 
 	try {
-		const response = await fetch(
-			`${process.env.NEXT_PUBLIC_API_URL}/login`,
-			{
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					user: { email, password },
-				}),
-			},
-		);
+		const response = await fetch(`${API_URL}/login`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				user: { email, password },
+			}),
+		});
 
 		const result: APIResponse = await response.json();
 
@@ -59,19 +57,16 @@ export async function signupAction(
 	const password = formData.get("password");
 
 	try {
-		const response = await fetch(
-			`${process.env.NEXT_PUBLIC_API_URL}/signup`,
-			{
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-				body: JSON.stringify({
-					user: { email, password },
-				}),
+		const response = await fetch(`${API_URL}/signup`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
 			},
-		);
+			body: JSON.stringify({
+				user: { email, password },
+			}),
+		});
 
 		const result: APIResponse = await response.json();
 
