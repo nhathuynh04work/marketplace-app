@@ -1,14 +1,23 @@
 class Api::V1::Users::SessionsController < Devise::SessionsController
   respond_to :json
 
-  private
+  def create
+    user = User.find_by(email: sign_in_params[:email])
 
-  # what to do after successful login
-  def respond_with(resource, _opts = {})
-    render_success(message: "Logged in successfully", data: { user: resource })
+    if user&.valid_password?(sign_in_params[:password])
+      sign_in(user, store: false)
+      render_success(message: "Logged in successfully", data: { user: user })
+    else
+      render_error(message: "Invalid email or password", status: :unauthorized)
+    end
   end
 
-  # what to do after successful logout
+  private
+
+  def sign_in_params
+    params.require(:user).permit(:email, :password)
+  end
+
   def respond_to_on_destroy
     if current_user
       render_success(message: "Logged out successfully")

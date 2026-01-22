@@ -9,11 +9,8 @@ Rails.application.routes.draw do
       controllers: {
         sessions: "api/v1/users/sessions",
         registrations: "api/v1/users/registrations"
-      }
-
-      devise_scope :user do
-        post "signup", to: "users/registrations#create"
-      end
+      },
+      defaults: { format: :json }
 
       resources :shops, only: [ :create ] do
         collection do

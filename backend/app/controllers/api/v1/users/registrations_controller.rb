@@ -28,4 +28,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   end
 
   private
+  def sign_up_params
+    params.expect(user: [ :email, :password ])
+  end
 end

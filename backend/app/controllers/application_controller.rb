@@ -1,4 +1,10 @@
 class ApplicationController < ActionController::API
+  include Devise::Controllers::Helpers
+
+  def authenticate_user!
+    authenticate_api_v1_user!
+  end
+
   def render_success(message:, data: {})
     render json: {
       success: true,
