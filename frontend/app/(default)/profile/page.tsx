@@ -13,13 +13,11 @@ export default async function ProfilePage() {
 	const vendorStatus = await getVendorStatus();
 
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="container mx-auto py-10 px-4">
-				<h1 className="text-3xl font-bold tracking-tight mb-8">
-					Account Settings
-				</h1>
-				<ProfileTabs vendorStatus={vendorStatus} />
-			</div>
+		<div className="container mx-auto py-10 px-4">
+			<h1 className="text-3xl font-bold tracking-tight mb-8">
+				Account Settings
+			</h1>
+			<ProfileTabs vendorStatus={vendorStatus} />
 		</div>
 	);
 }

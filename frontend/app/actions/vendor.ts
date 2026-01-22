@@ -1,45 +1,28 @@
 "use server";
 
-import { API_URL } from "@/lib/api";
-import { getSession } from "@/lib/session";
-import { APIResponse } from "@/types/api";
+import { apiFetch } from "@/lib/api";
+import { API_ROUTES } from "@/lib/routes";
 import { FormState } from "@/types/form";
+import { Shop, VendorStatus } from "@/types/vendor";
 import { revalidatePath } from "next/cache";
 
-export type Shop = {
-	id: number;
-	name: string;
-	slug: string;
-	description: string | null;
-};
-
-export type VendorStatus = {
-	has_shop: boolean;
-	shop: Shop | null;
-};
-
 export async function getVendorStatus(): Promise<VendorStatus> {
-	const token = await getSession();
-
-	const res = await fetch(`${API_URL}/shops/check`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-			"Content-Type": "application/json",
-		},
+	const { result } = await apiFetch<VendorStatus>(API_ROUTES.VENDOR.STATUS, {
+		requiresAuth: true,
 		cache: "no-store",
 	});
 
-	if (!res.ok) {
+	if (!result.success || !result.data) {
 		return { has_shop: false, shop: null };
 	}
 
-	const data: APIResponse<VendorStatus> = await res.json();
-	return data.data || { has_shop: false, shop: null };
+	return result.data;
 }
 
-export async function registerShop(prevState: FormState, formData: FormData) {
-	const token = await getSession();
-
+export async function registerShop(
+	prevState: FormState,
+	formData: FormData,
+): Promise<FormState> {
 	const rawData = {
 		shop: {
 			name: formData.get("name"),
@@ -47,25 +30,23 @@ export async function registerShop(prevState: FormState, formData: FormData) {
 		},
 	};
 
-	const res = await fetch(`${API_URL}/shops`, {
+	const { result } = await apiFetch<Shop>(API_ROUTES.VENDOR.ROOT, {
 		method: "POST",
-		headers: {
-			Authorization: `Bearer ${token}`,
-			"Content-Type": "application/json",
-		},
+		requiresAuth: true,
 		body: JSON.stringify(rawData),
 	});
 
-	const data: APIResponse = await res.json();
-
-	if (!res.ok) {
+	if (!result.success) {
 		return {
-			success: false,
-			message: data.message || "Failed to create shop",
-			errors: data.errors,
+			status: "error",
+			message: result.message || "Failed to create shop",
+			fieldErrors:
+				typeof result.errors === "object"
+					? (result.errors as Record<string, string[]>)
+					: undefined,
 		};
 	}
 
 	revalidatePath("/vendor");
-	return { success: true, message: "Shop registered successfully!" };
+	return { status: "success", message: "Shop registered successfully!" };
 }
