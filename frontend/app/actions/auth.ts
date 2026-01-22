@@ -1,9 +1,10 @@
 "use server";
 
-import { API_URL } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
+import { API_ROUTES } from "@/lib/routes";
 import { createSession } from "@/lib/session";
-import { APIResponse } from "@/types/api";
 import { FormState } from "@/types/form";
+import { User } from "@/types/user";
 
 export async function loginAction(
 	prevState: FormState,
@@ -12,41 +13,32 @@ export async function loginAction(
 	const email = formData.get("email");
 	const password = formData.get("password");
 
-	try {
-		const response = await fetch(`${API_URL}/login`, {
+	const { result, headers } = await apiFetch<{ user: User }>(
+		API_ROUTES.AUTH.LOGIN,
+		{
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				user: { email, password },
-			}),
-		});
+			body: JSON.stringify({ user: { email, password } }),
+		},
+	);
 
-		const result: APIResponse = await response.json();
-
-		if (!result.success) {
-			return {
-				status: "error",
-				message: result.message || "Invalid credentials",
-
-				fieldErrors:
-					typeof result.errors === "object"
-						? (result.errors as Record<string, string[]>)
-						: undefined,
-			};
-		}
-
-		const authHeader = response.headers.get("Authorization");
-		if (authHeader) {
-			const token = authHeader.split(" ")[1];
-			await createSession(token);
-		}
-		return { status: "success", message: "Logged in successfully" };
-	} catch {
+	if (!result.success) {
 		return {
 			status: "error",
-			message: "Invalid credentials",
+			message: result.message || "Invalid credentials",
+			fieldErrors:
+				typeof result.errors === "object"
+					? (result.errors as Record<string, string[]>)
+					: undefined,
 		};
 	}
+
+	const authHeader = headers.get("Authorization");
+	if (authHeader) {
+		const token = authHeader.split(" ")[1];
+		await createSession(token);
+	}
+
+	return { status: "success", message: "Logged in successfully" };
 }
 
 export async function signupAction(
@@ -56,41 +48,32 @@ export async function signupAction(
 	const email = formData.get("email");
 	const password = formData.get("password");
 
-	try {
-		const response = await fetch(`${API_URL}/signup`, {
+	const { result, headers } = await apiFetch<{ user: User }>(
+		API_ROUTES.AUTH.SIGNUP,
+		{
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Accept: "application/json",
-			},
 			body: JSON.stringify({
 				user: { email, password },
 			}),
-		});
+		},
+	);
 
-		const result: APIResponse = await response.json();
-
-		if (!result.success) {
-			return {
-				status: "error",
-				message: result.message,
-				fieldErrors:
-					typeof result.errors === "object"
-						? (result.errors as Record<string, string[]>)
-						: undefined,
-			};
-		}
-
-		const authHeader = response.headers.get("Authorization");
-		if (authHeader) {
-			const token = authHeader.split(" ")[1];
-			await createSession(token);
-		}
-		return { status: "success", message: "Account created successfully" };
-	} catch {
+	if (!result.success) {
 		return {
 			status: "error",
-			message: "Network error. Please try again.",
+			message: result.message || "Failed to create account",
+			fieldErrors:
+				typeof result.errors === "object"
+					? (result.errors as Record<string, string[]>)
+					: undefined,
 		};
 	}
+
+	const authHeader = headers.get("Authorization");
+	if (authHeader) {
+		const token = authHeader.split(" ")[1];
+		await createSession(token);
+	}
+
+	return { status: "success", message: "Account created successfully" };
 }

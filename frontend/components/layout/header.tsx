@@ -3,6 +3,7 @@ import { Search, ShoppingCart, User, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getSession } from "@/lib/session";
+import { APP_ROUTES } from "@/lib/routes";
 
 export default async function Header() {
 	const session = await getSession();
@@ -13,7 +14,7 @@ export default async function Header() {
 			<div className="container mx-auto flex h-16 items-center px-4 gap-4">
 				{/* Logo */}
 				<Link
-					href="/"
+					href={APP_ROUTES.HOME}
 					className="flex items-center gap-2 text-xl font-bold text-primary">
 					<Store className="h-6 w-6" />
 					<span>Marketplace</span>
@@ -42,25 +43,23 @@ export default async function Header() {
 					</Button>
 
 					{isLoggedIn ? (
-						// Logged In State: Avatar / Profile Link
 						<div className="flex items-center gap-2">
-							<Link href="/profile">
+							<Link href={APP_ROUTES.ACCOUNT}>
 								<Button
 									variant="secondary"
 									size="icon"
 									className="rounded-full">
 									<User className="h-5 w-5" />
-									<span className="sr-only">Profile</span>
+									<span className="sr-only">Account</span>
 								</Button>
 							</Link>
 						</div>
 					) : (
-						// Not Logged In State: Auth Buttons
 						<div className="flex items-center gap-2">
-							<Link href="/login">
+							<Link href={APP_ROUTES.LOGIN}>
 								<Button variant="ghost">Log in</Button>
 							</Link>
-							<Link href="/signup">
+							<Link href={APP_ROUTES.SIGNUP}>
 								<Button>Sign up</Button>
 							</Link>
 						</div>

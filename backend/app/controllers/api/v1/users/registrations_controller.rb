@@ -1,4 +1,4 @@
-class Users::RegistrationsController < Devise::RegistrationsController
+class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
   respond_to :json
 
   def create
@@ -28,4 +28,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   end
 
   private
+  def sign_up_params
+    params.expect(user: [ :email, :password ])
+  end
 end
