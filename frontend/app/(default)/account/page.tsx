@@ -3,7 +3,7 @@ import { getVendorStatus } from "@/app/actions/vendor";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
-export default async function ProfilePage() {
+export default async function AccountPage() {
 	const session = await getSession();
 
 	if (!session) {

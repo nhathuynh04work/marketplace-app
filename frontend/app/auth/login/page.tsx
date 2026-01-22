@@ -9,6 +9,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Store } from "lucide-react"; 
+import { APP_ROUTES } from "@/lib/routes";
 
 export default function LoginPage() {
 	const [state, action, isPending] = useActionState(loginAction, null);
@@ -116,7 +117,7 @@ export default function LoginPage() {
 					<div className="mt-4 text-center text-sm">
 						Don&apos;t have an account?{" "}
 						<Link
-							href="/signup"
+							href={APP_ROUTES.SIGNUP}
 							className="underline hover:text-primary">
 							Sign up
 						</Link>

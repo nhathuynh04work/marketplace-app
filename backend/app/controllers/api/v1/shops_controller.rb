@@ -1,7 +1,7 @@
 class Api::V1::ShopsController < ApplicationController
   before_action :authenticate_user!
 
-  def check
+  def status
     render_success(
       message: "Shop status retrieved",
       data: {

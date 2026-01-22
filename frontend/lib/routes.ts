@@ -17,4 +17,5 @@ export const APP_ROUTES = {
 	LOGIN: "/auth/login",
 	SIGNUP: "/auth/signup",
 	VENDOR_DASHBOARD: "/vendor",
+    ACCOUNT: "/account"
 };

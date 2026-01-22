@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Store, Rocket } from "lucide-react"; 
+import { APP_ROUTES } from "@/lib/routes";
 
 export default function SignupPage() {
 	const [state, action, isPending] = useActionState(signupAction, null);
@@ -125,7 +126,7 @@ export default function SignupPage() {
 					<div className="mt-4 text-center text-sm">
 						Already have an account?{" "}
 						<Link
-							href="/login"
+							href={APP_ROUTES.LOGIN}
 							className="underline hover:text-primary">
 							Login
 						</Link>
