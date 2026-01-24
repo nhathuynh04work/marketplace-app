@@ -1,7 +1,7 @@
-import ProfileTabs from "@/components/profile/profile-tabs";
 import { getVendorStatus } from "@/app/actions/vendor";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+import AccountTabs from "@/components/account/account-tabs";
 
 export default async function AccountPage() {
 	const session = await getSession();
@@ -17,7 +17,7 @@ export default async function AccountPage() {
 			<h1 className="text-3xl font-bold tracking-tight mb-8">
 				Account Settings
 			</h1>
-			<ProfileTabs vendorStatus={vendorStatus} />
+			<AccountTabs vendorStatus={vendorStatus} />
 		</div>
 	);
 }
