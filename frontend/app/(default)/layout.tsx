@@ -1,7 +1,9 @@
+"use server";
+
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
-export default function DefaultLayout({
+export default async function DefaultLayout({
 	children,
 }: {
 	children: React.ReactNode;
