@@ -12,12 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ShopRegistrationForm from "@/components/vendor/shop-registration-form";
-import type { VendorStatus } from "@/app/actions/vendor";
 import { Store, User, LogOut } from "lucide-react";
 import { deleteSession } from "@/lib/session";
 import { useRouter } from "next/navigation";
+import { VendorStatus } from "@/types/vendor";
 
-export default function ProfileTabs({
+export default function AccountTabs({
 	vendorStatus,
 }: {
 	vendorStatus: VendorStatus;

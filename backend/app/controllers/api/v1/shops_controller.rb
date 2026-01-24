@@ -1,5 +1,5 @@
 class Api::V1::ShopsController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user
 
   def status
     render_success(

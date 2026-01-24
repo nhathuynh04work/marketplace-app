@@ -1,16 +1,8 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      devise_for :users, path: "auth", path_names: {
-        sign_in: "login",
-        sign_out: "logout",
-        registration: "signup"
-      },
-      controllers: {
-        sessions: "api/v1/users/sessions",
-        registrations: "api/v1/users/registrations"
-      },
-      defaults: { format: :json }
+      post "/auth/signup", to: "users/registrations#create"
+      post "/auth/login", to: "users/sessions#create"
 
       resources :shops, only: [ :create ] do
         collection do
