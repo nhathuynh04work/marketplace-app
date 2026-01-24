@@ -1,13 +1,18 @@
+"use server";
+
 import Link from "next/link";
-import { Search, ShoppingCart, User, Store } from "lucide-react";
+import { Search, ShoppingCart, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getSession } from "@/lib/session";
 import { APP_ROUTES } from "@/lib/routes";
+import { getVendorStatus } from "@/app/actions/vendor";
+import { UserMenu } from "@/components/layout/user-menu";
 
 export default async function Header() {
 	const session = await getSession();
 	const isLoggedIn = !!session;
+	const vendorStatus = isLoggedIn ? await getVendorStatus() : null;
 
 	return (
 		<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -42,18 +47,8 @@ export default async function Header() {
 						<span className="sr-only">Cart</span>
 					</Button>
 
-					{isLoggedIn ? (
-						<div className="flex items-center gap-2">
-							<Link href={APP_ROUTES.ACCOUNT}>
-								<Button
-									variant="secondary"
-									size="icon"
-									className="rounded-full">
-									<User className="h-5 w-5" />
-									<span className="sr-only">Account</span>
-								</Button>
-							</Link>
-						</div>
+					{isLoggedIn && vendorStatus ? (
+						<UserMenu vendorStatus={vendorStatus} />
 					) : (
 						<div className="flex items-center gap-2">
 							<Link href={APP_ROUTES.LOGIN}>

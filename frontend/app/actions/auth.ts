@@ -2,9 +2,10 @@
 
 import { apiFetch } from "@/lib/api";
 import { API_ROUTES } from "@/lib/routes";
-import { createSession } from "@/lib/session";
+import { createSession, deleteSession } from "@/lib/session";
 import { FormState } from "@/types/form";
 import { User } from "@/types/user";
+import { redirect } from "next/navigation";
 
 export async function loginAction(
 	prevState: FormState,
@@ -76,4 +77,9 @@ export async function signupAction(
 	}
 
 	return { status: "success", message: "Account created successfully" };
+}
+
+export async function logoutAction() {
+	await deleteSession();
+    redirect("/")
 }
