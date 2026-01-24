@@ -9,6 +9,12 @@ Rails.application.routes.draw do
           get :status
         end
       end
+
+      resources :categories, only: [ :index, :show, :create ] do
+        collection do
+          get :roots
+        end
+      end
     end
   end
 
