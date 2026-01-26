@@ -3,7 +3,7 @@
 import { apiFetch } from "@/lib/api";
 import { API_ROUTES } from "@/lib/routes";
 import { FormState } from "@/types/form";
-import { Shop, VendorStatus } from "@/types/vendor";
+import { Shop, ShopCategory, VendorStatus } from "@/types/vendor";
 import { revalidatePath } from "next/cache";
 
 export async function getVendorStatus(): Promise<VendorStatus> {
@@ -49,4 +49,58 @@ export async function registerShop(
 
 	revalidatePath("/vendor");
 	return { status: "success", message: "Shop registered successfully!" };
+}
+
+export async function getShopCategories(
+	shopId: number,
+): Promise<ShopCategory[]> {
+	const { result } = await apiFetch<ShopCategory[]>(
+		`/shops/${shopId}/categories`,
+		{
+			requiresAuth: true,
+			cache: "no-store",
+		},
+	);
+
+	if (!result.success || !result.data) {
+		return [];
+	}
+
+	return result.data;
+}
+
+export async function createShopCategory(
+	shopId: number,
+	prevState: FormState,
+	formData: FormData,
+): Promise<FormState> {
+	const rawData = {
+		shop_category: {
+			name: formData.get("name"),
+			is_active: formData.get("is_active") === "on", 
+		},
+	};
+
+	const { result } = await apiFetch<ShopCategory>(
+		`/shops/${shopId}/categories`,
+		{
+			method: "POST",
+			requiresAuth: true,
+			body: JSON.stringify(rawData),
+		},
+	);
+
+	if (!result.success) {
+		return {
+			status: "error",
+			message: result.message || "Failed to create category",
+			fieldErrors:
+				typeof result.errors === "object"
+					? (result.errors as Record<string, string[]>)
+					: undefined,
+		};
+	}
+
+	revalidatePath("/vendor/categories");
+	return { status: "success", message: "Category created successfully!" };
 }

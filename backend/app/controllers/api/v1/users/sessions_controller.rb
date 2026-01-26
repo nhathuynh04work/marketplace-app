@@ -4,7 +4,8 @@ class Api::V1::Users::SessionsController < ApplicationController
 
     if user&.authenticate(sign_in_params[:password])
       log_in(user)
-      render_success(message: "Logged in successfully", data: { user: user })
+      data = { user: UserBlueprint.render_as_hash(user, view: :with_shop) }
+      render_success(message: "Logged in successfully", data: data)
     else
       render_error(message: "Invalid email or password", status: :unauthorized)
     end

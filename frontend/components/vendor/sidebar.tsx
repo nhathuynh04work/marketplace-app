@@ -12,6 +12,7 @@ import {
 	Users,
 	BarChart3,
 	ArrowRightLeft,
+    ListFilter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import { logoutAction } from "@/app/actions/auth";
 
 const sidebarLinks = [
 	{ href: "/vendor", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/vendor/categories", label: "Categories", icon: ListFilter },
 	{ href: "/vendor/products", label: "Products", icon: Package },
 	{ href: "/vendor/orders", label: "Orders", icon: ShoppingBag },
 	{ href: "/vendor/customers", label: "Customers", icon: Users },

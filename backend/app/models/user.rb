@@ -13,8 +13,4 @@ class User < ApplicationRecord
   def vendor?
     shop.present?
   end
-
-  def as_json(options = {})
-    super(options).except("password_digest", "created_at", "updated_at").merge(shop: shop)
-  end
 end

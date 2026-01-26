@@ -32,11 +32,13 @@ const formSchema = z.object({
 	description: z.string().max(500).optional(),
 });
 
+type ShopFormValues = z.infer<typeof formSchema>;
+
 export default function ShopRegistrationForm() {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 
-	const form = useForm<z.infer<typeof formSchema>>({
+	const form = useForm<ShopFormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: "",
@@ -44,21 +46,37 @@ export default function ShopRegistrationForm() {
 		},
 	});
 
-	async function onSubmit(values: z.infer<typeof formSchema>) {
+	async function onSubmit(values: ShopFormValues) {
 		setIsLoading(true);
 		const formData = new FormData();
 		formData.append("name", values.name);
 		if (values.description)
 			formData.append("description", values.description);
 
-		const result = await registerShop(null, formData);
+		const result = await registerShop(
+			{ status: "idle", message: "" },
+			formData,
+		);
+
 		setIsLoading(false);
 
-		if (result.success) {
+		if (result.status === "success") {
 			toast.success(result.message);
 			router.refresh();
 		} else {
 			toast.error(result.message);
+
+			if (result.fieldErrors) {
+				Object.entries(result.fieldErrors).forEach(
+					([field, errors]) => {
+						if (errors && errors.length > 0) {
+							form.setError(field as keyof ShopFormValues, {
+								message: errors[0],
+							});
+						}
+					},
+				);
+			}
 		}
 	}
 
@@ -102,8 +120,10 @@ export default function ShopRegistrationForm() {
 								<FormItem>
 									<FormLabel>Description</FormLabel>
 									<FormControl>
-										<Input
+										<Textarea
 											placeholder="Best products in town..."
+											className="resize-none"
+											rows={4}
 											{...field}
 										/>
 									</FormControl>

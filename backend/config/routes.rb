@@ -8,6 +8,18 @@ Rails.application.routes.draw do
         collection do
           get :status
         end
+
+        resources :categories, controller: "shops/categories", only: [ :index, :create, :update, :destroy ] do
+           collection do
+             patch :reorder
+           end
+        end
+      end
+
+      resources :categories, only: [ :index, :show, :create ] do
+        collection do
+          get :roots
+        end
       end
     end
   end
