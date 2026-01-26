@@ -1,5 +1,5 @@
 class Api::V1::CategoriesController < ApplicationController
-  before_action :authenticate_user, only: [ :create ]
+  before_action :authenticate_user!, only: [ :create ]
 
   def index
     categories = Category.all.order(name: :asc)

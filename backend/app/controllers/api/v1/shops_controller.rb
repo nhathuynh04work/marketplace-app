@@ -1,5 +1,5 @@
 class Api::V1::ShopsController < ApplicationController
-  before_action :authenticate_user
+  before_action :authenticate_user!
 
   def status
     shop_data = current_user.shop ? ShopBlueprint.render_as_hash(current_user.shop) : nil
