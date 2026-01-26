@@ -3,4 +3,4 @@ export type FormState = {
 	message: string; 
 	fieldErrors?: Record<string, string[] | undefined>; 
 	timestamp?: number; 
-} | null;
+};

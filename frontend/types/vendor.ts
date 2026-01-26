@@ -5,6 +5,14 @@ export type Shop = {
 	description: string | null;
 };
 
+export type ShopCategory = {
+	id: number;
+	name: string;
+	is_active: boolean;
+	display_order: number;
+	created_at?: string;
+};
+
 export type VendorStatus = {
 	has_shop: boolean;
 	shop: Shop | null;
