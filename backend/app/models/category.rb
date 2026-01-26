@@ -1,8 +1,9 @@
 class Category < ApplicationRecord
-  has_ancestry
+  has_ancestry orphan_strategy: :restrict
 
   validates :name, presence: true, length: { minimum: 2, maximum: 50 }
   validates :slug, presence: true, uniqueness: true
+  validates :description, length: { maximum: 500 }
 
   before_validation :generate_slug
 
