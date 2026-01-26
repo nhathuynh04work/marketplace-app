@@ -2,34 +2,23 @@ class Api::V1::CategoriesController < ApplicationController
   before_action :authenticate_user, only: [ :create ]
 
   def index
-    categories = Category.all.arrange_serializable
-    render_success(message: "Categories fetched", data: categories)
+    categories = Category.all.order(name: :asc)
+    data = CategoryBlueprint.render_as_json(categories)
+
+    render_success(message: "Categories fetched", data: data)
   end
 
 
   def roots
-    categories = Category.roots.order(name: :asc).to_a
-    root_ids = categories.map(&:id).map(&:to_s)
-
-    root_ids_with_children = Category.where(ancestry: root_ids)
-                                     .distinct
-                                     .pluck(:ancestry)
-
-    data = categories.map do |category|
-      category.as_json.merge(
-        has_children?: root_ids_with_children.include?(category.id.to_s)
-      )
-    end
+    categories = Category.roots.order(name: :asc)
+    data = CategoryBlueprint.render_as_json(categories, view: :root_with_check)
 
     render_success(message: "Root categories fetched", data: data)
   end
 
   def show
     category = Category.find(params[:id])
-
-    data = category.as_json.merge(
-      children: category.children.order(name: :asc)
-    )
+    data = CategoryBlueprint.render_as_json(category, view: :tree)
 
     render_success(message: "Category fetched", data: data)
   rescue ActiveRecord::RecordNotFound
@@ -40,7 +29,8 @@ class Api::V1::CategoriesController < ApplicationController
     category = Category.new(category_params)
 
     if category.save
-        render_success(message: "Category created", data: category)
+        data = CategoryBlueprint.render_as_json(category)
+        render_success(message: "Category created", data: data)
     else
        render_error(message: "Creation failed", errors: category.errors)
     end
@@ -49,6 +39,6 @@ class Api::V1::CategoriesController < ApplicationController
   private
 
   def category_params
-    params.require(:category).permit(:name, :parent_id, :description)
+    params.expect(category: [ :name, :parent_id, :description ])
   end
 end
