@@ -11,11 +11,7 @@ Rails.application.routes.draw do
           get :status
         end
 
-        resources :categories, controller: "shops/categories", only: [ :index, :create, :update, :destroy ] do
-           collection do
-             patch :reorder
-           end
-        end
+        resources :categories, controller: "shops/categories", only: [ :index ]
 
         resources :products, controller: "shops/products", only: [ :index, :show ]
       end
@@ -28,6 +24,12 @@ Rails.application.routes.draw do
 
       namespace :vendor do
         resources :products
+
+        resources :categories, only: [ :index, :create, :update, :destroy ] do
+          collection do
+            patch :reorder
+          end
+        end
       end
     end
   end

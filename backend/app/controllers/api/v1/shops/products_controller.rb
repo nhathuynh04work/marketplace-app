@@ -4,6 +4,10 @@ class Api::V1::Shops::ProductsController < ApplicationController
   def index
     products = @shop.products.active.ordered
 
+    if params[:shop_category_id].present?
+      products = products.where(shop_category_id: params[:shop_category_id])
+    end
+
     render_success(
       data: {
         products: ProductBlueprint.render_as_hash(products)
