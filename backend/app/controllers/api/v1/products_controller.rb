@@ -1,11 +1,7 @@
 class Api::V1::ProductsController < ApplicationController
   def index
-    products = Product.active.ordered
+    products = Product.active.ordered.includes(:shop, :category, :shop_category)
 
-    render_success(
-      data: {
-        products: ProductBlueprint.render_as_hash(products)
-      }
-    )
+    render_success(data: { products: ProductBlueprint.render_as_hash(products) })
   end
 end

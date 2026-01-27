@@ -15,6 +15,9 @@ class Product < ApplicationRecord
 
   scope :active, -> { where(status: :active) }
   scope :ordered, -> { order(created_at: :desc) }
+  scope :filter_by_category, ->(id) { where(category_id: id) if id.present? }
+  scope :filter_by_shop_category, ->(id) { where(shop_category_id: id) if id.present? }
+  scope :search_by_name, ->(query) { where("name ILIKE ?", "%#{query}%") if query.present? }
 
   private
 
