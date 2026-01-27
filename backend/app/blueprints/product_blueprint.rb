@@ -5,9 +5,4 @@ class ProductBlueprint < Blueprinter::Base
 
   association :category, blueprint: CategoryBlueprint
   association :shop_category, blueprint: ShopCategoryBlueprint
-
-  # Example for images if using ActiveStorage
-  # field :images do |product|
-  #   product.images.map { |img| Rails.application.routes.url_helpers.url_for(img) }
-  # end
 end

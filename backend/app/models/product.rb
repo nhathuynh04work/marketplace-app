@@ -3,8 +3,6 @@ class Product < ApplicationRecord
   belongs_to :category
   belongs_to :shop_category, optional: true
 
-  has_many_attached :images
-
   enum :status, { draft: 0, active: 1, archived: 2 }, default: :draft
 
   validates :name, presence: true, length: { minimum: 3, maximum: 150 }

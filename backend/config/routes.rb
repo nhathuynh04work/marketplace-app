@@ -9,11 +9,15 @@ Rails.application.routes.draw do
           get :status
         end
 
+        # categories
         resources :categories, controller: "shops/categories", only: [ :index, :create, :update, :destroy ] do
            collection do
              patch :reorder
            end
         end
+
+        # products
+        resources :products, controller: "shops/products"
       end
 
       resources :categories, only: [ :index, :show, :create ] do
