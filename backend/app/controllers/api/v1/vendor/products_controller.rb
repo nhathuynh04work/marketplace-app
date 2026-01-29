@@ -4,7 +4,7 @@ class Api::V1::Vendor::ProductsController < ApplicationController
   before_action :set_product, only: %i[show update destroy]
 
   def index
-    products = @shop.products.ordered
+    products = @shop.products.ordered.with_attached_images
 
     render_success(
       data: {

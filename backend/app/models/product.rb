@@ -30,7 +30,7 @@ class Product < ApplicationRecord
   end
 
   def validate_images
-    true unless images.attached?
+    return unless images.attached?
 
     if images.count > 9
       errors.add(:images, "limit is 9 files")
