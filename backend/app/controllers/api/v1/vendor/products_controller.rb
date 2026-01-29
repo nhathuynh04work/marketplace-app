@@ -1,6 +1,4 @@
 class Api::V1::Vendor::ProductsController < ApplicationController
-  before_action :authenticate_user!
-  before_action :ensure_shop_owner
   before_action :set_product, only: %i[show update destroy]
 
   def index
@@ -56,13 +54,6 @@ class Api::V1::Vendor::ProductsController < ApplicationController
   end
 
   private
-
-  def ensure_shop_owner
-    @shop = current_user.shop
-    unless @shop
-      render_error(message: "You do not have a shop", status: :forbidden)
-    end
-  end
 
   def set_product
     @product = @shop.products.find_by(id: params[:id])

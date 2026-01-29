@@ -1,6 +1,4 @@
-class Api::V1::Vendor::CategoriesController < ApplicationController
-  before_action :authenticate_user!
-  before_action :ensure_shop_owner
+class Api::V1::Vendor::CategoriesController < Api::V1::Vendor::BaseController
   before_action :set_category, only: %i[update destroy]
 
   def index
@@ -56,13 +54,6 @@ class Api::V1::Vendor::CategoriesController < ApplicationController
   end
 
   private
-
-  def ensure_shop_owner
-    @shop = current_user.shop
-    unless @shop
-      render_error(message: "You do not have a shop", status: :forbidden)
-    end
-  end
 
   def set_category
     @category = @shop.shop_categories.find_by(id: params[:id])
