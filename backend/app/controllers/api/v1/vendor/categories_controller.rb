@@ -61,6 +61,6 @@ class Api::V1::Vendor::CategoriesController < Api::V1::Vendor::BaseController
   end
 
   def category_params
-    params.require(:shop_category).permit(:name, :is_active)
+    params.expect(shop_category: [ :name, :is_active ])
   end
 end

@@ -1,4 +1,4 @@
-class Api::V1::Vendor::ProductsController < ApplicationController
+class Api::V1::Vendor::ProductsController < Api::V1::Vendor::BaseController
   before_action :set_product, only: %i[show update destroy]
 
   def index
