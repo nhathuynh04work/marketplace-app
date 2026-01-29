@@ -72,7 +72,7 @@ class Api::V1::Vendor::ProductsController < ApplicationController
   def product_params
     params.expect(product: [
       :name, :description, :price, :stock_quantity,
-      :status, :category_id, :shop_category_id
+      :status, :category_id, :shop_category_id, images: []
     ])
   end
 end
