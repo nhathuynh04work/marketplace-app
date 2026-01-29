@@ -4,7 +4,7 @@ Rails.application.routes.draw do
       post "/auth/signup", to: "users/registrations#create"
       post "/auth/login", to: "users/sessions#create"
 
-      resources :products, only: [ :index ]
+      resources :products, only: [ :index, :show ]
 
       resources :shops, only: [ :create ] do
         collection do
@@ -13,7 +13,7 @@ Rails.application.routes.draw do
 
         resources :categories, controller: "shops/categories", only: [ :index ]
 
-        resources :products, controller: "shops/products", only: [ :index, :show ]
+        resources :products, controller: "shops/products", only: [ :index ]
       end
 
       resources :categories, only: [ :index, :show, :create ] do

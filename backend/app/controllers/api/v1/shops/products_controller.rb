@@ -8,20 +8,6 @@ class Api::V1::Shops::ProductsController < ApplicationController
     render_success(data: { products: ProductBlueprint.render_as_hash(products) })
   end
 
-  def show
-    product = @shop.products.active.find_by(id: params[:id])
-
-    if product
-      render_success(
-        data: {
-          product: ProductBlueprint.render_as_hash(product)
-        }
-      )
-    else
-      render_error(message: "Product not found", status: :not_found)
-    end
-  end
-
   private
 
   def set_shop
