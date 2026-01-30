@@ -1,5 +1,5 @@
 class Api::V1::Vendor::CategoriesController < Api::V1::Vendor::BaseController
-  before_action :set_category, only: %i[update destroy]
+  before_action :set_category, only: %i[show update destroy]
 
   def index
     categories = @shop.shop_categories.ordered
@@ -7,6 +7,13 @@ class Api::V1::Vendor::CategoriesController < Api::V1::Vendor::BaseController
     render_success(
       message: "Shop categories fetched",
       data: ShopCategoryBlueprint.render_as_hash(categories)
+    )
+  end
+
+  def show
+    render_success(
+      message: "Category fetched",
+      data: ShopCategoryBlueprint.render_as_hash(@category)
     )
   end
 

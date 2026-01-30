@@ -25,7 +25,7 @@ Rails.application.routes.draw do
       namespace :vendor do
         resources :products
 
-        resources :categories, only: [ :index, :create, :update, :destroy ] do
+        resources :categories, only: [ :index, :show, :create, :update, :destroy ] do
           collection do
             patch :reorder
           end

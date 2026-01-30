@@ -288,3 +288,16 @@ export async function updateProduct(
 	revalidatePath(`/vendor/products/${productId}`);
 	return { status: "success", message: "Product updated successfully!" };
 }
+
+export async function getShopCategory(
+    shopId: number, 
+    categoryId: string
+): Promise<ShopCategory | null> {
+    const { result } = await apiFetch<ShopCategory>(
+        `${API_ROUTES.VENDOR.CATEGORIES}/${categoryId}`,
+        { requiresAuth: true, cache: "no-store" }
+    );
+
+    if (!result.success || !result.data) return null;
+    return result.data;
+}
