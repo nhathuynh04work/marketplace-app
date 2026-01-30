@@ -1,4 +1,4 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL; 
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 export const API_ROUTES = {
 	AUTH: {
@@ -9,6 +9,12 @@ export const API_ROUTES = {
 	VENDOR: {
 		ROOT: `${API_BASE}/shops`,
 		STATUS: `${API_BASE}/shops/status`,
+		PRODUCTS: `${API_BASE}/vendor/products`,
+		CATEGORIES: `${API_BASE}/vendor/categories`,
+	},
+	CATEGORIES: {
+		ROOT: `${API_BASE}/categories`,
+		ROOTS: `${API_BASE}/categories/roots`,
 	},
 };
 
@@ -17,5 +23,7 @@ export const APP_ROUTES = {
 	LOGIN: "/auth/login",
 	SIGNUP: "/auth/signup",
 	VENDOR_DASHBOARD: "/vendor",
-    ACCOUNT: "/account"
+	VENDOR_PRODUCTS: "/vendor/products",
+	VENDOR_PRODUCTS_NEW: "/vendor/products/new",
+	ACCOUNT: "/account",
 };

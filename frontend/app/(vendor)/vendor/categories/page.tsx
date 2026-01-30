@@ -8,6 +8,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { EditCategoryDialog } from "@/components/vendor/edit-category-dialog";
 
 export default async function VendorCategoriesPage() {
 	const { has_shop, shop } = await getVendorStatus();
@@ -59,7 +60,7 @@ export default async function VendorCategoriesPage() {
 												{category.is_active ? (
 													<Badge
 														variant="default"
-														className="bg-green-600 hover:bg-green-700">
+														className="bg-green-600">
 														Active
 													</Badge>
 												) : (
@@ -67,6 +68,12 @@ export default async function VendorCategoriesPage() {
 														Draft
 													</Badge>
 												)}
+
+												{/* Add the Edit Dialog */}
+												<EditCategoryDialog
+													shopId={shop.id}
+													category={category}
+												/>
 											</div>
 										</div>
 									))}

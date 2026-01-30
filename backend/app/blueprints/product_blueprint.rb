@@ -6,5 +6,7 @@ class ProductBlueprint < Blueprinter::Base
   association :shop, blueprint: ShopBlueprint
   association :category, blueprint: CategoryBlueprint
   association :shop_category, blueprint: ShopCategoryBlueprint
-  association :images, blueprint: ImageBlueprint
+  association :images, blueprint: ImageBlueprint do |product|
+    product.images.attachments
+  end
 end

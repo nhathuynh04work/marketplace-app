@@ -5,6 +5,7 @@ class Api::V1::Vendor::ProductsController < Api::V1::Vendor::BaseController
     products = @shop.products.ordered.with_attached_images
 
     render_success(
+      message: "Products fetched successfully",
       data: {
         products: ProductBlueprint.render_as_hash(products)
       }
@@ -13,6 +14,7 @@ class Api::V1::Vendor::ProductsController < Api::V1::Vendor::BaseController
 
   def show
     render_success(
+      message: "Product fetched successfully",
       data: {
         product: ProductBlueprint.render_as_hash(@product)
       }
@@ -25,7 +27,6 @@ class Api::V1::Vendor::ProductsController < Api::V1::Vendor::BaseController
     if @product.save
       render_success(
         message: "Product created successfully",
-        status: :created,
         data: {
           product: ProductBlueprint.render_as_hash(@product)
         }
