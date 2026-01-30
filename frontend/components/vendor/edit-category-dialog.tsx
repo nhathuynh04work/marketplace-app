@@ -15,48 +15,69 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ShopCategory } from "@/types/vendor";
-import { FormState } from "@/types/form";
 import { Pencil, Trash2, Loader2 } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 
 interface EditCategoryDialogProps {
 	shopId: number;
 	category: ShopCategory;
 }
 
-const initialState: FormState = { status: "idle", message: "" };
-
 export function EditCategoryDialog({
 	shopId,
 	category,
 }: EditCategoryDialogProps) {
 	const [open, setOpen] = useState(false);
-	const updateAction = updateShopCategory.bind(null, category.id, shopId);
-	const [state, formAction, isPending] = useActionState(
-		updateAction,
-		initialState,
-	);
 
-	const handleDelete = async () => {
-		if (!confirm("Are you sure? This cannot be undone.")) return;
+	const updateMutation = useMutation({
+		mutationFn: async (formData: FormData) => {
+			return await updateShopCategory(
+				category.id,
+				shopId,
+				{ status: "idle", message: "" },
+				formData,
+			);
+		},
+		onSuccess: (data) => {
+			if (data.status === "success") {
+				toast.success(data.message);
+				setOpen(false);
+			} else {
+				toast.error(data.message);
+			}
+		},
+		onError: () => {
+			toast.error("An unexpected error occurred");
+		},
+	});
 
-		const res = await deleteShopCategory(shopId, category.id);
-		if (res.status === "success") {
-			toast.success(res.message);
-		} else {
-			toast.error(res.message);
-		}
+	const deleteMutation = useMutation({
+		mutationFn: async () => {
+			return await deleteShopCategory(shopId, category.id);
+		},
+		onSuccess: (data) => {
+			if (data.status === "success") {
+				toast.success(data.message);
+				setOpen(false);
+			} else {
+				toast.error(data.message);
+			}
+		},
+	});
+
+	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const formData = new FormData(event.currentTarget);
+		updateMutation.mutate(formData);
 	};
 
-	useEffect(() => {
-		if (state.status === "success") {
-			toast.success(state.message);
-			setOpen(false);
-		} else if (state.status === "error") {
-			toast.error(state.message);
+	const handleDelete = () => {
+		if (confirm("Are you sure? This cannot be undone.")) {
+			deleteMutation.mutate();
 		}
-	}, [state]);
+	};
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
@@ -73,7 +94,9 @@ export function EditCategoryDialog({
 						Make changes to your shop category here.
 					</DialogDescription>
 				</DialogHeader>
-				<form action={formAction} className="space-y-4">
+
+				{/* Standard HTML Form submitting to our handler */}
+				<form onSubmit={handleSubmit} className="space-y-4">
 					<div className="space-y-2">
 						<Label htmlFor="edit-name">Name</Label>
 						<Input
@@ -82,11 +105,15 @@ export function EditCategoryDialog({
 							defaultValue={category.name}
 							required
 						/>
-						{state.fieldErrors?.name && (
-							<p className="text-sm text-destructive">
-								{state.fieldErrors.name[0]}
-							</p>
-						)}
+						{/* Note: If you want field validation errors from the server 
+                           displayed here, you would check updateMutation.data?.fieldErrors
+                        */}
+						{updateMutation.data?.status === "error" &&
+							updateMutation.data.fieldErrors?.name && (
+								<p className="text-sm text-destructive">
+									{updateMutation.data.fieldErrors.name[0]}
+								</p>
+							)}
 					</div>
 					<div className="flex items-center space-x-2">
 						<Checkbox
@@ -104,11 +131,24 @@ export function EditCategoryDialog({
 							variant="destructive"
 							size="icon"
 							onClick={handleDelete}
+							disabled={
+								deleteMutation.isPending ||
+								updateMutation.isPending
+							}
 							title="Delete Category">
-							<Trash2 className="h-4 w-4" />
+							{deleteMutation.isPending ? (
+								<Loader2 className="h-4 w-4 animate-spin" />
+							) : (
+								<Trash2 className="h-4 w-4" />
+							)}
 						</Button>
-						<Button type="submit" disabled={isPending}>
-							{isPending && (
+						<Button
+							type="submit"
+							disabled={
+								updateMutation.isPending ||
+								deleteMutation.isPending
+							}>
+							{updateMutation.isPending && (
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 							)}
 							Save changes

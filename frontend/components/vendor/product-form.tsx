@@ -13,21 +13,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FormState } from "@/types/form";
 import { GlobalCategory, ShopCategory, Product } from "@/types/vendor";
 import { Loader2, Save } from "lucide-react";
-import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 
 interface ProductFormProps {
 	shopCategories: ShopCategory[];
 	globalCategories: GlobalCategory[];
-	product?: Product; // Optional: if present, it's Edit mode
+	product?: Product;
 }
-
-const initialState: FormState = { status: "idle", message: "" };
 
 export function ProductForm({
 	shopCategories,
@@ -37,23 +34,45 @@ export function ProductForm({
 	const isEditMode = !!product;
 	const router = useRouter();
 
-	// Bind ID if editing, otherwise standard create action
-	const action = isEditMode
-		? updateProduct.bind(null, product.id)
-		: createProduct;
-
-	const [state, formAction, isPending] = useActionState(action, initialState);
-
-	useEffect(() => {
-		if (state.status === "success") {
-			toast.success(state.message);
-			if (!isEditMode) {
-				router.push("/vendor/products");
+	const mutation = useMutation({
+		mutationFn: async (formData: FormData) => {
+			const prevState = { status: "idle", message: "" } as const;
+			if (isEditMode && product) {
+				return await updateProduct(product.id, prevState, formData);
+			} else {
+				return await createProduct(prevState, formData);
 			}
-		} else if (state.status === "error") {
-			toast.error(state.message);
+		},
+		onSuccess: (data) => {
+			if (data.status === "success") {
+				toast.success(data.message);
+				if (!isEditMode) {
+					router.push("/vendor/products");
+				}
+			} else {
+				toast.error(data.message);
+			}
+		},
+		onError: () => {
+			toast.error("Something went wrong. Please try again.");
+		},
+	});
+
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const formData = new FormData(e.currentTarget);
+		mutation.mutate(formData);
+	};
+
+	const getError = (field: string) => {
+		if (
+			mutation.data?.status === "error" &&
+			mutation.data.fieldErrors?.[field]
+		) {
+			return mutation.data.fieldErrors[field][0];
 		}
-	}, [state, router, isEditMode]);
+		return null;
+	};
 
 	return (
 		<Card className="w-full max-w-2xl mx-auto">
@@ -67,7 +86,7 @@ export function ProductForm({
 						: "Fill in the details to add a new product."}
 				</CardDescription>
 			</CardHeader>
-			<form action={formAction}>
+			<form onSubmit={handleSubmit}>
 				<CardContent className="space-y-6">
 					{/* Name */}
 					<div className="space-y-2">
@@ -79,9 +98,9 @@ export function ProductForm({
 							placeholder="e.g. Classic White T-Shirt"
 							required
 						/>
-						{state.fieldErrors?.name && (
+						{getError("name") && (
 							<p className="text-sm text-destructive">
-								{state.fieldErrors.name[0]}
+								{getError("name")}
 							</p>
 						)}
 					</div>
@@ -96,9 +115,9 @@ export function ProductForm({
 							placeholder="Describe your product..."
 							className="min-h-[100px]"
 						/>
-						{state.fieldErrors?.description && (
+						{getError("description") && (
 							<p className="text-sm text-destructive">
-								{state.fieldErrors.description[0]}
+								{getError("description")}
 							</p>
 						)}
 					</div>
@@ -117,9 +136,9 @@ export function ProductForm({
 								placeholder="0.00"
 								required
 							/>
-							{state.fieldErrors?.price && (
+							{getError("price") && (
 								<p className="text-sm text-destructive">
-									{state.fieldErrors.price[0]}
+									{getError("price")}
 								</p>
 							)}
 						</div>
@@ -138,9 +157,9 @@ export function ProductForm({
 								placeholder="10"
 								required
 							/>
-							{state.fieldErrors?.stock_quantity && (
+							{getError("stock_quantity") && (
 								<p className="text-sm text-destructive">
-									{state.fieldErrors.stock_quantity[0]}
+									{getError("stock_quantity")}
 								</p>
 							)}
 						</div>
@@ -167,9 +186,9 @@ export function ProductForm({
 									</option>
 								))}
 							</select>
-							{state.fieldErrors?.category_id && (
+							{getError("category_id") && (
 								<p className="text-sm text-destructive">
-									{state.fieldErrors.category_id[0]}
+									{getError("category_id")}
 								</p>
 							)}
 						</div>
@@ -193,11 +212,6 @@ export function ProductForm({
 									</option>
 								))}
 							</select>
-							{state.fieldErrors?.shop_category_id && (
-								<p className="text-sm text-destructive">
-									{state.fieldErrors.shop_category_id[0]}
-								</p>
-							)}
 						</div>
 					</div>
 
@@ -221,8 +235,8 @@ export function ProductForm({
 					<Button
 						type="submit"
 						className="w-full"
-						disabled={isPending}>
-						{isPending ? (
+						disabled={mutation.isPending}>
+						{mutation.isPending ? (
 							<>
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 								{isEditMode ? "Updating..." : "Creating..."}

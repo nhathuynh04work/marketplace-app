@@ -8,7 +8,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Plus, Package } from "lucide-react";
+import { Plus, Package, Pencil } from "lucide-react";
 import Link from "next/link";
 import { APP_ROUTES } from "@/lib/routes";
 
@@ -66,17 +66,20 @@ export default async function VendorProductsPage() {
 					) : (
 						<div className="rounded-md border">
 							<div className="grid grid-cols-12 gap-4 border-b bg-muted/50 p-4 text-sm font-medium">
-								<div className="col-span-6">Product</div>
+								<div className="col-span-5">Product</div>
 								<div className="col-span-2">Price</div>
 								<div className="col-span-2">Stock</div>
 								<div className="col-span-2">Status</div>
+								<div className="col-span-1 text-right">
+									Actions
+								</div>
 							</div>
 							<div className="divide-y">
 								{products.map((product) => (
 									<div
 										key={product.id}
 										className="grid grid-cols-12 gap-4 p-4 items-center text-sm hover:bg-muted/30 transition-colors">
-										<div className="col-span-6 font-medium">
+										<div className="col-span-5 font-medium">
 											{product.name}
 										</div>
 										<div className="col-span-2">
@@ -100,6 +103,21 @@ export default async function VendorProductsPage() {
 												}>
 												{product.status}
 											</Badge>
+										</div>
+										{/* Added Edit Action */}
+										<div className="col-span-1 text-right">
+											<Button
+												variant="ghost"
+												size="icon"
+												asChild>
+												<Link
+													href={`${APP_ROUTES.VENDOR_PRODUCTS}/${product.id}`}>
+													<Pencil className="h-4 w-4 text-muted-foreground" />
+													<span className="sr-only">
+														Edit
+													</span>
+												</Link>
+											</Button>
 										</div>
 									</div>
 								))}
