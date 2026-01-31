@@ -3,25 +3,38 @@
 import { apiFetch } from "@/lib/api";
 import { Product } from "@/types/vendor";
 
+interface CreateProductParams {
+	data: FormData;
+}
+
+interface UpdateProductParams {
+	id: number;
+	data: FormData;
+}
+
+interface DeleteProductParams {
+	id: number;
+}
+
 export async function getVendorProducts() {
 	return await apiFetch<Product[]>("/vendor/products");
 }
 
-export async function createProduct(formData: FormData) {
+export async function createProduct({ data }: CreateProductParams) {
 	return await apiFetch<Product>("/vendor/products", {
 		method: "POST",
-		body: formData,
+		body: data,
 	});
 }
 
-export async function updateProduct(id: number, formData: FormData) {
+export async function updateProduct({ id, data }: UpdateProductParams) {
 	return await apiFetch<Product>(`/vendor/products/${id}`, {
 		method: "PUT",
-		body: formData,
+		body: data,
 	});
 }
 
-export async function deleteProduct(id: number) {
+export async function deleteProduct({ id }: DeleteProductParams) {
 	return await apiFetch(`/vendor/products/${id}`, {
 		method: "DELETE",
 	});

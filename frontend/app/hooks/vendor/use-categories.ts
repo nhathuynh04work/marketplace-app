@@ -4,7 +4,6 @@ import {
 	createShopCategory,
 	deleteShopCategory,
 } from "@/app/actions/vendor/categories";
-import { toast } from "sonner";
 
 export const useShopCategories = () => {
 	return useQuery({
@@ -22,7 +21,6 @@ export const useCreateShopCategory = () => {
 			queryClient.invalidateQueries({
 				queryKey: ["vendor", "categories"],
 			});
-			toast.success("Category created");
 		},
 	});
 };
@@ -36,7 +34,6 @@ export const useDeleteShopCategory = () => {
 			queryClient.invalidateQueries({
 				queryKey: ["vendor", "categories"],
 			});
-			toast.success("Category deleted");
 		},
 	});
 };

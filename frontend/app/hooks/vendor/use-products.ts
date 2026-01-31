@@ -5,7 +5,6 @@ import {
 	updateProduct,
 	deleteProduct,
 } from "@/app/actions/vendor/products";
-import { toast } from "sonner";
 
 export const useVendorProducts = () => {
 	return useQuery({
@@ -21,10 +20,6 @@ export const useCreateProduct = () => {
 		mutationFn: createProduct,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["vendor", "products"] });
-			toast.success("Product created successfully");
-		},
-		onError: (error) => {
-			toast.error(error.message || "Failed to create product");
 		},
 	});
 };
@@ -33,11 +28,20 @@ export const useUpdateProduct = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ id, data }: { id: number; data: FormData }) =>
-			updateProduct(id, data),
+		mutationFn: updateProduct,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["vendor", "products"] });
-			toast.success("Product updated successfully");
+		},
+	});
+};
+
+export const useDeleteProduct = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: deleteProduct,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["vendor", "products"] });
 		},
 	});
 };
