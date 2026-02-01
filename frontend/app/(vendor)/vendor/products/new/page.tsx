@@ -10,14 +10,14 @@ import { APP_ROUTES } from "@/lib/routes";
 import { ProductForm } from "@/components/vendor/product-form";
 
 export default async function NewProductPage() {
-	const { has_shop, shop } = await getVendorStatus();
+	const { has_shop } = await getVendorStatus();
 
-	if (!has_shop || !shop) {
+	if (!has_shop) {
 		return <div>Store not found.</div>;
 	}
 
 	const [shopCategories, globalCategories] = await Promise.all([
-		getShopCategories(shop.id),
+		getShopCategories(),
 		getGlobalCategories(),
 	]);
 

@@ -5,8 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ShopCategory } from "@/types/vendor";
-import { useCreateShopCategory } from "@/app/hooks/vendor/use-categories";
+import { ShopCategory, Product } from "@/types/vendor";
+import {
+	useCreateShopCategory,
+	useUpdateShopCategory,
+} from "@/app/hooks/vendor/use-categories";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -26,44 +29,56 @@ const categorySchema = z.object({
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
 interface CategoryFormProps {
-	existingCategory?: ShopCategory;
+	category?: ShopCategory;
+	allProducts?: Product[];
 }
 
-export function CategoryForm({ existingCategory }: CategoryFormProps) {
+export function CategoryForm({ category, allProducts }: CategoryFormProps) {
 	const router = useRouter();
-	const { mutate: createCategory, isPending } = useCreateShopCategory();
+	const { mutate: createCategory, isPending: isCreating } = useCreateShopCategory();
+	const { mutate: updateCategory, isPending: isUpdating } = useUpdateShopCategory();
 
 	const form = useForm<CategoryFormValues>({
 		resolver: zodResolver(categorySchema),
 		defaultValues: {
-			name: existingCategory?.name || "",
+			name: category?.name || "",
 		},
 	});
 
-	function onSubmit(values: CategoryFormValues) {
-		if (existingCategory) {
-			toast.info("Update logic not yet implemented");
-			return;
-		}
+	const isPending = isCreating || isUpdating;
 
-		createCategory(
-			{ name: values.name },
-			{
-				onSuccess: () => {
-					toast.success("Category created successfully");
-					router.push("/vendor/categories");
-					form.reset();
+	function onSubmit(values: CategoryFormValues) {
+		if (category) {
+			updateCategory(
+				{ id: category.id, name: values.name },
+				{
+					onSuccess: () => {
+						toast.success("Category updated successfully");
+						router.push("/vendor/categories");
+					},
+					onError: (err) => toast.error(err.message),
 				},
-				onError: (err) => toast.error(err.message),
-			},
-		);
+			);
+		} else {
+			createCategory(
+				{ name: values.name },
+				{
+					onSuccess: () => {
+						toast.success("Category created successfully");
+						router.push("/vendor/categories");
+						form.reset();
+					},
+					onError: (err) => toast.error(err.message),
+				},
+			);
+		}
 	}
 
 	return (
 		<Card className="max-w-md">
 			<CardHeader>
 				<CardTitle>
-					{existingCategory ? "Edit Category" : "New Category"}
+					{category ? "Edit Category" : "New Category"}
 				</CardTitle>
 			</CardHeader>
 			<CardContent>

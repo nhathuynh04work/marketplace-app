@@ -1,6 +1,6 @@
 "use server";
 
-import { apiFetch } from "@/lib/api";
+import { fetchQuery, fetchMutation } from "@/lib/action-utils";
 import { Product } from "@/types/vendor";
 
 interface CreateProductParams {
@@ -16,26 +16,34 @@ interface DeleteProductParams {
 	id: number;
 }
 
-export async function getVendorProducts() {
-	return await apiFetch<Product[]>("/vendor/products");
+interface GetProductParams {
+	id: number;
 }
 
-export async function createProduct({ data }: CreateProductParams) {
-	return await apiFetch<Product>("/vendor/products", {
+export async function getVendorProducts(): Promise<Product[]> {
+	return fetchQuery<Product[]>("/vendor/products");
+}
+
+export async function getVendorProduct({ id }: GetProductParams): Promise<Product> {
+	return fetchQuery<Product>(`/vendor/products/${id}`);
+}
+
+export async function createProduct({ data }: CreateProductParams): Promise<Product> {
+	return fetchMutation<Product>("/vendor/products", {
 		method: "POST",
 		body: data,
 	});
 }
 
-export async function updateProduct({ id, data }: UpdateProductParams) {
-	return await apiFetch<Product>(`/vendor/products/${id}`, {
+export async function updateProduct({ id, data }: UpdateProductParams): Promise<Product> {
+	return fetchMutation<Product>(`/vendor/products/${id}`, {
 		method: "PUT",
 		body: data,
 	});
 }
 
-export async function deleteProduct({ id }: DeleteProductParams) {
-	return await apiFetch(`/vendor/products/${id}`, {
+export async function deleteProduct({ id }: DeleteProductParams): Promise<void> {
+	return fetchMutation<void>(`/vendor/products/${id}`, {
 		method: "DELETE",
 	});
 }

@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getSession } from "@/lib/session";
 import { APP_ROUTES } from "@/lib/routes";
-import { getVendorStatus } from "@/app/actions/vendor";
 import { UserMenu } from "@/components/layout/user-menu";
+import { getVendorStatus } from "@/app/actions/vendor/shops";
 
 export default async function Header() {
 	const session = await getSession();

@@ -12,12 +12,12 @@ interface PageProps {
 
 export default async function EditCategoryPage({ params }: PageProps) {
 	const { id } = await params;
-	const { has_shop, shop } = await getVendorStatus();
+	const { has_shop } = await getVendorStatus();
 
-	if (!has_shop || !shop) return <div>Store not found.</div>;
+	if (!has_shop) return <div>Store not found.</div>;
 
 	const [category, allProducts] = await Promise.all([
-		getShopCategory(shop.id, id),
+		getShopCategory(id),
 		getVendorProducts(),
 	]);
 
@@ -27,7 +27,6 @@ export default async function EditCategoryPage({ params }: PageProps) {
 
 	return (
 		<CategoryForm
-			shopId={shop.id}
 			category={category}
 			allProducts={allProducts}
 		/>
