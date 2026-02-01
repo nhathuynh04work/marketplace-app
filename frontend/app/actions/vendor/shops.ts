@@ -12,7 +12,7 @@ interface UpdateShopParams {
 }
 
 export async function getVendorStatus(): Promise<VendorStatus> {
-    return fetchQuery<VendorStatus>("/vendor/status");
+    return fetchQuery<VendorStatus>("/shops/status");
 }
 
 export async function getVendorShop(): Promise<Shop> {
@@ -20,10 +20,11 @@ export async function getVendorShop(): Promise<Shop> {
 }
 
 export async function registerShop({ data }: RegisterShopParams): Promise<Shop> {
-    return fetchMutation<Shop>("/shops", {
+    const response = await fetchMutation<{ shop: Shop }>("/shops", {
         method: "POST",
         body: data,
     });
+    return response.shop;
 }
 
 export async function updateShop({ data }: UpdateShopParams): Promise<Shop> {

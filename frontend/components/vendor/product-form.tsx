@@ -38,8 +38,8 @@ const productSchema = z.object({
 	price: z.string().min(1, "Price is required"),
 	stock_quantity: z.string().min(1, "Stock quantity is required"),
 	status: z.enum(["draft", "active", "archived"]),
-	shop_category_id: z.string().optional(),
-	category_id: z.string().optional(),
+	shop_category_id: z.string().nullable().optional(),
+	category_id: z.string().nullable().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -64,11 +64,11 @@ export function ProductForm({
 		defaultValues: {
 			name: product?.name || "",
 			description: product?.description || "",
-			price: product?.price?.toString() || "",
+			price: product?.price || "",
 			stock_quantity: product?.stock_quantity?.toString() || "0",
 			status: product?.status || "draft",
-			shop_category_id: product?.shop_category_id?.toString() || "",
-			category_id: product?.category_id?.toString() || "",
+			shop_category_id: product?.shop_category?.id?.toString() || undefined,
+			category_id: product?.category?.id?.toString() || undefined,
 		},
 	});
 
@@ -83,10 +83,10 @@ export function ProductForm({
 		formData.append("product[price]", values.price);
 		formData.append("product[stock_quantity]", values.stock_quantity);
 		formData.append("product[status]", values.status);
-		if (values.shop_category_id) {
+		if (values.shop_category_id && values.shop_category_id !== null) {
 			formData.append("product[shop_category_id]", values.shop_category_id);
 		}
-		if (values.category_id) {
+		if (values.category_id && values.category_id !== null) {
 			formData.append("product[category_id]", values.category_id);
 		}
 
@@ -240,75 +240,69 @@ export function ProductForm({
 						/>
 
 						<div className="grid grid-cols-2 gap-4">
-							<FormField
-								control={form.control}
-								name="shop_category_id"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Shop Category</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											defaultValue={field.value}>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="Select category" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="">
-													None
+						<FormField
+							control={form.control}
+							name="shop_category_id"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Shop Category</FormLabel>
+									<Select
+										onValueChange={field.onChange}
+										defaultValue={field.value ?? undefined}>
+										<FormControl>
+											<SelectTrigger>
+												<SelectValue placeholder="Select category" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											{shopCategories.map((cat) => (
+												<SelectItem
+													key={cat.id}
+													value={cat.id.toString()}>
+													{cat.name}
 												</SelectItem>
-												{shopCategories.map((cat) => (
-													<SelectItem
-														key={cat.id}
-														value={cat.id.toString()}>
-														{cat.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormDescription>
-											Your shop's category
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											))}
+										</SelectContent>
+									</Select>
+									<FormDescription>
+										Optional: organize within your shop
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
-							<FormField
-								control={form.control}
-								name="category_id"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Global Category</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											defaultValue={field.value}>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="Select category" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="">
-													None
+						<FormField
+							control={form.control}
+							name="category_id"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Global Category</FormLabel>
+									<Select
+										onValueChange={field.onChange}
+										defaultValue={field.value ?? undefined}>
+										<FormControl>
+											<SelectTrigger>
+												<SelectValue placeholder="Select category" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											{globalCategories.map((cat) => (
+												<SelectItem
+													key={cat.id}
+													value={cat.id.toString()}>
+													{cat.name}
 												</SelectItem>
-												{globalCategories.map((cat) => (
-													<SelectItem
-														key={cat.id}
-														value={cat.id.toString()}>
-														{cat.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormDescription>
-											Marketplace category
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											))}
+										</SelectContent>
+									</Select>
+									<FormDescription>
+										Required: marketplace category
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 						</div>
 
 						<div className="flex gap-4">

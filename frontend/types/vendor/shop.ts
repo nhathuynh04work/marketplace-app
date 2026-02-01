@@ -3,6 +3,7 @@ export type Shop = {
 	name: string;
 	slug: string;
 	description: string | null;
+	created_at: string;
 };
 
 export type VendorStatus = {

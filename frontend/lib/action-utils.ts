@@ -19,14 +19,18 @@ export async function fetchAction<T>(
     const { result } = await apiFetch<T>(endpoint, options);
 
     if (!result.success) {
-        const error = new Error(result.message || "An error occurred");
-        if (typeof result.errors === "object") {
+        const error = new Error(result.message || "Request failed");
+        if (typeof result.errors === "object" && result.errors !== null) {
             (error as Error & { fieldErrors?: Record<string, string[]> }).fieldErrors = result.errors;
         }
         throw error;
     }
 
-    return (result.data !== undefined ? result.data : result) as T;
+    if (result.data !== undefined && result.data !== null) {
+        return result.data as T;
+    }
+
+    return result as unknown as T;
 }
 
 export async function fetchQuery<T>(

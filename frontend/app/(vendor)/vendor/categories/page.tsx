@@ -14,10 +14,6 @@ import { Plus, Folder, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export default async function VendorCategoriesPage() {
-	const { has_shop } = await getVendorStatus();
-
-	if (!has_shop) return <div>Store not found.</div>;
-
 	const categories = await getShopCategories();
 
 	return (

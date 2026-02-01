@@ -21,25 +21,29 @@ interface GetProductParams {
 }
 
 export async function getVendorProducts(): Promise<Product[]> {
-	return fetchQuery<Product[]>("/vendor/products");
+	const response = await fetchQuery<{ products: Product[] }>("/vendor/products");
+	return response.products;
 }
 
 export async function getVendorProduct({ id }: GetProductParams): Promise<Product> {
-	return fetchQuery<Product>(`/vendor/products/${id}`);
+	const response = await fetchQuery<{ product: Product }>(`/vendor/products/${id}`);
+	return response.product;
 }
 
 export async function createProduct({ data }: CreateProductParams): Promise<Product> {
-	return fetchMutation<Product>("/vendor/products", {
+	const response = await fetchMutation<{ product: Product }>("/vendor/products", {
 		method: "POST",
 		body: data,
 	});
+	return response.product;
 }
 
 export async function updateProduct({ id, data }: UpdateProductParams): Promise<Product> {
-	return fetchMutation<Product>(`/vendor/products/${id}`, {
+	const response = await fetchMutation<{ product: Product }>(`/vendor/products/${id}`, {
 		method: "PUT",
 		body: data,
 	});
+	return response.product;
 }
 
 export async function deleteProduct({ id }: DeleteProductParams): Promise<void> {

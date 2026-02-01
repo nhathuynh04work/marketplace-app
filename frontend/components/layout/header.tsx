@@ -12,7 +12,15 @@ import { getVendorStatus } from "@/app/actions/vendor/shops";
 export default async function Header() {
 	const session = await getSession();
 	const isLoggedIn = !!session;
-	const vendorStatus = isLoggedIn ? await getVendorStatus() : null;
+	
+	let vendorStatus = null;
+	if (isLoggedIn) {
+		try {
+			vendorStatus = await getVendorStatus();
+		} catch {
+			vendorStatus = { has_shop: false, shop: null };
+		}
+	}
 
 	return (
 		<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -25,7 +33,7 @@ export default async function Header() {
 					<span>Marketplace</span>
 				</Link>
 
-				{/* Search Bar - Takes up remaining space */}
+				{/* Search Bar */}
 				<div className="flex-1 max-w-2xl mx-auto hidden md:block">
 					<div className="relative">
 						<Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -47,18 +55,18 @@ export default async function Header() {
 						<span className="sr-only">Cart</span>
 					</Button>
 
-					{isLoggedIn && vendorStatus ? (
-						<UserMenu vendorStatus={vendorStatus} />
-					) : (
-						<div className="flex items-center gap-2">
-							<Link href={APP_ROUTES.LOGIN}>
-								<Button variant="ghost">Log in</Button>
-							</Link>
-							<Link href={APP_ROUTES.SIGNUP}>
-								<Button>Sign up</Button>
-							</Link>
-						</div>
-					)}
+				{isLoggedIn ? (
+					<UserMenu vendorStatus={vendorStatus!} />
+				) : (
+					<div className="flex items-center gap-2">
+						<Link href={APP_ROUTES.LOGIN}>
+							<Button variant="ghost">Log in</Button>
+						</Link>
+						<Link href={APP_ROUTES.SIGNUP}>
+							<Button>Sign up</Button>
+						</Link>
+					</div>
+				)}
 				</div>
 			</div>
 

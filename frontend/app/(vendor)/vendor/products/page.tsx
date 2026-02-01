@@ -1,4 +1,4 @@
-import { getVendorProducts, getVendorStatus } from "@/app/actions/vendor";
+import { getVendorProducts } from "@/app/actions/vendor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +13,6 @@ import Link from "next/link";
 import { APP_ROUTES } from "@/lib/routes";
 
 export default async function VendorProductsPage() {
-	const { has_shop } = await getVendorStatus();
-
-	if (!has_shop) {
-		return <div>Store not found.</div>;
-	}
-
 	const products = await getVendorProducts();
 
 	return (
