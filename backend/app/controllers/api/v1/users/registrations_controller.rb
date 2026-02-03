@@ -4,13 +4,9 @@ class Api::V1::Users::RegistrationsController < ApplicationController
 
     if user.save
       log_in(user)
-      data = { user: UserBlueprint.render_as_hash(user, view: :with_shop) }
-      render_success(message: "Signed up successfully", data: data)
+      render json: { user: UserBlueprint.render_as_hash(user, view: :with_shop) }, status: :ok
     else
-      render_error(
-        message: "User couldn't be created successfully.",
-        errors: user.errors.as_json
-      )
+      render json: { errors: user.errors.as_json }, status: :unprocessable_entity
     end
   end
 

@@ -4,17 +4,11 @@ class Api::V1::Vendor::CategoriesController < Api::V1::Vendor::BaseController
   def index
     categories = @shop.shop_categories.ordered
 
-    render_success(
-      message: "Shop categories fetched",
-      data: ShopCategoryBlueprint.render_as_hash(categories)
-    )
+    render json: ShopCategoryBlueprint.render_as_hash(categories), status: :ok
   end
 
   def show
-    render_success(
-      message: "Category fetched",
-      data: ShopCategoryBlueprint.render_as_hash(@category)
-    )
+    render json: ShopCategoryBlueprint.render_as_hash(@category), status: :ok
   end
 
   def create
@@ -23,29 +17,23 @@ class Api::V1::Vendor::CategoriesController < Api::V1::Vendor::BaseController
     category.display_order = max_order + 1
 
     if category.save
-      render_success(
-        message: "Category created",
-        data: ShopCategoryBlueprint.render_as_hash(category)
-      )
+      render json: ShopCategoryBlueprint.render_as_hash(category), status: :ok
     else
-      render_error(errors: category.errors)
+      render json: { errors: category.errors }, status: :unprocessable_entity
     end
   end
 
   def update
     if @category.update(category_params)
-      render_success(
-        message: "Category updated",
-        data: ShopCategoryBlueprint.render_as_hash(@category)
-      )
+      render json: ShopCategoryBlueprint.render_as_hash(@category), status: :ok
     else
-      render_error(errors: @category.errors)
+      render json: { errors: @category.errors }, status: :unprocessable_entity
     end
   end
 
   def destroy
     @category.destroy
-    render_success(message: "Category deleted")
+    render json: {}, status: :ok
   end
 
   def reorder
@@ -55,16 +43,16 @@ class Api::V1::Vendor::CategoriesController < Api::V1::Vendor::BaseController
       end
     end
 
-    render_success(message: "Categories reordered")
+    render json: {}, status: :ok
   rescue StandardError => e
-    render_error(message: "Reorder failed", errors: e.message)
+    render json: { errors: e.message }, status: :unprocessable_entity
   end
 
   private
 
   def set_category
     @category = @shop.shop_categories.find_by(id: params[:id])
-    render_error(message: "Category not found", status: :not_found) unless @category
+    render json: { errors: "Category not found" }, status: :not_found unless @category
   end
 
   def category_params

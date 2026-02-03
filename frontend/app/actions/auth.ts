@@ -1,85 +1,111 @@
 "use server";
 
-import { apiFetch } from "@/lib/api";
-import { API_ROUTES } from "@/lib/routes";
+import { API_URLS } from "@/lib/routes";
 import { createSession, deleteSession } from "@/lib/session";
-import { FormState } from "@/types/form";
 import { User } from "@/types/user";
 import { redirect } from "next/navigation";
 
-export async function loginAction(
-	prevState: FormState,
-	formData: FormData,
-): Promise<FormState> {
-	const email = formData.get("email");
-	const password = formData.get("password");
+type ErrorWithFieldErrors = Error & {
+	fieldErrors?: Record<string, string[]>;
+};
 
-	const { result, headers } = await apiFetch<{ user: User }>(
-		API_ROUTES.AUTH.LOGIN,
-		{
-			method: "POST",
-			body: JSON.stringify({ user: { email, password } }),
-		},
-	);
-
-	if (!result.success) {
-		return {
-			status: "error",
-			message: result.message || "Invalid credentials",
-			fieldErrors:
-				typeof result.errors === "object"
-					? (result.errors as Record<string, string[]>)
-					: undefined,
-		};
-	}
-
-	const authHeader = headers.get("Authorization");
-	if (authHeader) {
-		const token = authHeader.split(" ")[1];
-		await createSession(token);
-	}
-
-	return { status: "success", message: "Logged in successfully" };
+interface LoginParams {
+	email: string;
+	password: string;
 }
 
-export async function signupAction(
-	prevState: FormState,
-	formData: FormData,
-): Promise<FormState> {
-	const email = formData.get("email");
-	const password = formData.get("password");
+interface SignupParams {
+	email: string;
+	password: string;
+}
 
-	const { result, headers } = await apiFetch<{ user: User }>(
-		API_ROUTES.AUTH.SIGNUP,
-		{
+export async function loginAction({ email, password }: LoginParams): Promise<{ user: User }> {
+	try {
+		const response = await fetch(API_URLS.AUTH.LOGIN, {
 			method: "POST",
-			body: JSON.stringify({
-				user: { email, password },
-			}),
-		},
-	);
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ user: { email, password } }),
+		});
 
-	if (!result.success) {
-		return {
-			status: "error",
-			message: result.message || "Failed to create account",
-			fieldErrors:
-				typeof result.errors === "object"
-					? (result.errors as Record<string, string[]>)
-					: undefined,
+		const data = await response.json() as {
+			user?: User;
+			errors?: Record<string, string[]> | string;
 		};
-	}
 
-	const authHeader = headers.get("Authorization");
-	if (authHeader) {
-		const token = authHeader.split(" ")[1];
-		await createSession(token);
-	}
+		if (!response.ok) {
+			if (data.errors) {
+				if (typeof data.errors === "string") {
+					throw new Error(data.errors);
+				} else {
+					const error = new Error("Validation failed") as ErrorWithFieldErrors;
+					error.fieldErrors = data.errors;
+					throw error;
+				}
+			}
+			throw new Error(`Login failed with status ${response.status}`);
+		}
 
-	return { status: "success", message: "Account created successfully" };
+		const authHeader = response.headers.get("Authorization");
+		if (authHeader) {
+			const token = authHeader.split(" ")[1];
+			await createSession(token);
+		}
+
+		return { user: data.user as User };
+	} catch (error) {
+		if (error instanceof Error) {
+			throw error;
+		}
+		throw new Error("Network error occurred");
+	}
+}
+
+export async function signupAction({ email, password }: SignupParams): Promise<{ user: User }> {
+	try {
+		const response = await fetch(API_URLS.AUTH.SIGNUP, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ user: { email, password } }),
+		});
+
+		const data = await response.json() as {
+			user?: User;
+			errors?: Record<string, string[]> | string;
+		};
+
+		if (!response.ok) {
+			if (data.errors) {
+				if (typeof data.errors === "string") {
+					throw new Error(data.errors);
+				} else {
+					const error = new Error("Validation failed") as ErrorWithFieldErrors;
+					error.fieldErrors = data.errors;
+					throw error;
+				}
+			}
+			throw new Error(`Signup failed with status ${response.status}`);
+		}
+
+		const authHeader = response.headers.get("Authorization");
+		if (authHeader) {
+			const token = authHeader.split(" ")[1];
+			await createSession(token);
+		}
+
+		return { user: data.user as User };
+	} catch (error) {
+		if (error instanceof Error) {
+			throw error;
+		}
+		throw new Error("Network error occurred");
+	}
 }
 
 export async function logoutAction() {
 	await deleteSession();
-    redirect("/")
+	redirect("/");
 }

@@ -1,26 +1,52 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
-import { loginAction } from "@/app/actions/auth";
+import { FormEvent, useEffect } from "react";
+import { useLogin } from "@/app/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Store } from "lucide-react"; 
 import { APP_ROUTES } from "@/lib/routes";
 
 export default function LoginPage() {
-	const [state, action, isPending] = useActionState(loginAction, null);
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const loginMutation = useLogin();
 
 	useEffect(() => {
-		if (state?.status === "success") {
-			toast.success("Welcome back!");
-			router.push("/");
+		if (searchParams.get("expired") === "true") {
+			toast.error("Your session has expired. Please log in again.");
 		}
-	}, [state, router]);
+	}, [searchParams]);
+
+	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const formData = new FormData(e.currentTarget);
+		const email = formData.get("email") as string;
+		const password = formData.get("password") as string;
+
+		loginMutation.mutate(
+			{ email, password },
+			{
+				onSuccess: () => {
+					toast.success("Welcome back!");
+					router.push("/");
+				},
+				onError: (error: Error & { fieldErrors?: Record<string, string[]> }) => {
+					if (!error.fieldErrors) {
+						toast.error(error.message || "Login failed. Please try again.");
+					}
+				},
+			}
+		);
+	};
+
+	const fieldErrors = loginMutation.error && (loginMutation.error as Error & { fieldErrors?: Record<string, string[]> }).fieldErrors
+		? (loginMutation.error as Error & { fieldErrors?: Record<string, string[]> }).fieldErrors
+		: undefined;
 
 	return (
 		<div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
@@ -53,7 +79,7 @@ export default function LoginPage() {
 
 			{/* Right Side: Form */}
 			<div className="flex items-center justify-center py-12 bg-background">
-				<div className="mx-auto grid w-87.5 gap-6">
+				<div className="mx-auto grid w-[350px] gap-6">
 					<div className="grid gap-2 text-center">
 						<h1 className="text-3xl font-bold">Login</h1>
 						<p className="text-balance text-muted-foreground">
@@ -61,12 +87,12 @@ export default function LoginPage() {
 						</p>
 					</div>
 
-					<form action={action} className="grid gap-4">
-						{state?.status === "error" && !state.fieldErrors && (
-							<div className="text-sm text-destructive font-medium">
-								{state.message}
-							</div>
-						)}
+				<form onSubmit={handleSubmit} className="grid gap-4">
+					{loginMutation.error && !(loginMutation.error as Error & { fieldErrors?: Record<string, string[]> }).fieldErrors && (
+						<div className="text-sm text-destructive font-medium">
+							{loginMutation.error.message}
+						</div>
+					)}
 
 						<div className="grid gap-2">
 							<Label htmlFor="email">Email</Label>
@@ -77,11 +103,16 @@ export default function LoginPage() {
 								placeholder="m@example.com"
 								required
 								className={
-									state?.fieldErrors?.email
+									fieldErrors?.email
 										? "border-destructive"
 										: ""
 								}
 							/>
+							{fieldErrors?.email && (
+								<p className="text-xs text-destructive">
+									{fieldErrors.email[0]}
+								</p>
+							)}
 						</div>
 
 						<div className="grid gap-2">
@@ -99,18 +130,23 @@ export default function LoginPage() {
 								type="password"
 								required
 								className={
-									state?.fieldErrors?.password
+									fieldErrors?.password
 										? "border-destructive"
 										: ""
 								}
 							/>
+							{fieldErrors?.password && (
+								<p className="text-xs text-destructive">
+									{fieldErrors.password[0]}
+								</p>
+							)}
 						</div>
 
 						<Button
 							type="submit"
 							className="w-full"
-							disabled={isPending}>
-							{isPending ? "Logging in..." : "Login"}
+							disabled={loginMutation.isPending}>
+							{loginMutation.isPending ? "Logging in..." : "Login"}
 						</Button>
 					</form>
 

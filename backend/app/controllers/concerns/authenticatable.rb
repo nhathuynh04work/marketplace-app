@@ -17,8 +17,13 @@ module Authenticatable
 
     begin
       decoded = JsonWebToken.decode(token)
+      if decoded.nil?
+        Rails.logger.warn "Failed to decode token: #{token}"
+        return @current_user = nil
+      end
       @current_user = User.find_by(id: decoded[:user_id])
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.error "Authentication error: #{e.class} - #{e.message}"
       @current_user = nil
     end
 
@@ -27,7 +32,7 @@ module Authenticatable
 
   def authenticate_user!
     unless current_user
-      render_error(message: "Unauthorized access", status: :unauthorized)
+      render json: { errors: "Unauthorized access" }, status: :unauthorized
     end
   end
 

@@ -1,7 +1,6 @@
 import {
 	getGlobalCategories,
 	getShopCategories,
-	getVendorStatus,
 	getVendorProduct,
 } from "@/app/actions/vendor";
 import { ProductForm } from "@/components/vendor/product-form";
@@ -19,16 +18,14 @@ export default async function EditProductPage({
 	params,
 }: EditProductPageProps) {
 	const { id } = await params;
-	const { has_shop, shop } = await getVendorStatus();
 
-	if (!has_shop || !shop) return <div>Store not found.</div>;
-
-	// Fetch all data in parallel
 	const [shopCategories, globalCategories, product] = await Promise.all([
-		getShopCategories(shop.id),
+		getShopCategories(),
 		getGlobalCategories(),
-		getVendorProduct(id),
+		getVendorProduct({ id: parseInt(id) }),
 	]);
+
+    console.log(shopCategories, globalCategories, product)
 
 	if (!product) {
 		notFound();

@@ -3,6 +3,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { useRegisterShop } from "@/app/hooks/vendor/use-shops";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -14,6 +18,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	Card,
 	CardContent,
@@ -21,71 +26,53 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { registerShop } from "@/app/actions/vendor";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
 
-const formSchema = z.object({
-	name: z.string().min(3, "Shop name must be at least 3 characters").max(50),
-	description: z.string().max(500).optional(),
+const shopSchema = z.object({
+	name: z.string().min(3, "Shop name must be at least 3 characters"),
+	description: z.string().optional(),
 });
 
-type ShopFormValues = z.infer<typeof formSchema>;
+type ShopFormValues = z.infer<typeof shopSchema>;
 
-export default function ShopRegistrationForm() {
+export function ShopRegistrationForm() {
 	const router = useRouter();
-	const [isLoading, setIsLoading] = useState(false);
+	const { mutate: registerShop, isPending } = useRegisterShop();
 
 	const form = useForm<ShopFormValues>({
-		resolver: zodResolver(formSchema),
+		resolver: zodResolver(shopSchema),
 		defaultValues: {
 			name: "",
 			description: "",
 		},
 	});
 
-	async function onSubmit(values: ShopFormValues) {
-		setIsLoading(true);
+	function onSubmit(values: ShopFormValues) {
 		const formData = new FormData();
-		formData.append("name", values.name);
-		if (values.description)
-			formData.append("description", values.description);
-
-		const result = await registerShop(
-			{ status: "idle", message: "" },
-			formData,
-		);
-
-		setIsLoading(false);
-
-		if (result.status === "success") {
-			toast.success(result.message);
-			router.refresh();
-		} else {
-			toast.error(result.message);
-
-			if (result.fieldErrors) {
-				Object.entries(result.fieldErrors).forEach(
-					([field, errors]) => {
-						if (errors && errors.length > 0) {
-							form.setError(field as keyof ShopFormValues, {
-								message: errors[0],
-							});
-						}
-					},
-				);
-			}
+		formData.append("shop[name]", values.name);
+		if (values.description) {
+			formData.append("shop[description]", values.description);
 		}
+
+		registerShop(
+			{ data: formData },
+			{
+				onSuccess: () => {
+					toast.success("Shop registered successfully!");
+					router.push("/vendor/dashboard");
+				},
+				onError: (error) => {
+					toast.error(error.message || "Failed to register shop");
+				},
+			},
+		);
 	}
 
 	return (
-		<Card className="w-full">
+		<Card className="w-full max-w-lg mx-auto">
 			<CardHeader>
 				<CardTitle>Register your Shop</CardTitle>
 				<CardDescription>
-					Start selling your products on our marketplace today.
+					Start selling on our marketplace today.
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -101,18 +88,15 @@ export default function ShopRegistrationForm() {
 									<FormLabel>Shop Name</FormLabel>
 									<FormControl>
 										<Input
-											placeholder="Acme Store"
+											placeholder="My Awesome Store"
 											{...field}
 										/>
 									</FormControl>
-									<FormDescription>
-										This will be your unique public store
-										name.
-									</FormDescription>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
+
 						<FormField
 							control={form.control}
 							name="description"
@@ -121,21 +105,24 @@ export default function ShopRegistrationForm() {
 									<FormLabel>Description</FormLabel>
 									<FormControl>
 										<Textarea
-											placeholder="Best products in town..."
-											className="resize-none"
-											rows={4}
+											placeholder="Tell us about your shop..."
 											{...field}
 										/>
 									</FormControl>
+									<FormDescription>
+										Optional description for your shop
+										profile.
+									</FormDescription>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
+
 						<Button
 							type="submit"
 							className="w-full"
-							disabled={isLoading}>
-							{isLoading ? "Creating Shop..." : "Register Shop"}
+							disabled={isPending}>
+							{isPending ? "Registering..." : "Register Shop"}
 						</Button>
 					</form>
 				</Form>

@@ -1,5 +1,5 @@
 import { getVendorStatus } from "@/app/actions/vendor";
-import ShopRegistrationForm from "@/components/vendor/shop-registration-form";
+import { ShopRegistrationForm } from "@/components/vendor/shop-registration-form";
 import {
 	Card,
 	CardContent,

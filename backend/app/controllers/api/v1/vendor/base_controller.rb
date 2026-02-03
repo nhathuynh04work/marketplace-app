@@ -6,6 +6,6 @@ class Api::V1::Vendor::BaseController < ApplicationController
 
   def ensure_shop_owner
     @shop = current_user.shop
-    render_error(message: "You do not have a shop", status: :forbidden) unless @shop
+    render json: { errors: "You do not have a shop" }, status: :forbidden unless @shop
   end
 end

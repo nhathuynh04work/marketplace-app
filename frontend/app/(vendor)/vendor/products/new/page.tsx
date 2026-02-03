@@ -1,7 +1,6 @@
 import {
 	getGlobalCategories,
 	getShopCategories,
-	getVendorStatus,
 } from "@/app/actions/vendor";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -10,14 +9,8 @@ import { APP_ROUTES } from "@/lib/routes";
 import { ProductForm } from "@/components/vendor/product-form";
 
 export default async function NewProductPage() {
-	const { has_shop, shop } = await getVendorStatus();
-
-	if (!has_shop || !shop) {
-		return <div>Store not found.</div>;
-	}
-
 	const [shopCategories, globalCategories] = await Promise.all([
-		getShopCategories(shop.id),
+		getShopCategories(),
 		getGlobalCategories(),
 	]);
 

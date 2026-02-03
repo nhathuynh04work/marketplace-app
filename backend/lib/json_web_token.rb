@@ -9,7 +9,8 @@ class JsonWebToken
   def self.decode(token)
     decoded = JWT.decode(token, SECRET_KEY)[0]
     HashWithIndifferentAccess.new decoded
-  rescue JWT::DecodeError
+  rescue JWT::DecodeError, JWT::ExpiredSignature, JWT::VerificationError, JWT::InvalidJtiError => e
+    Rails.logger.error "JWT decode error: #{e.class} - #{e.message}"
     nil
   end
 end

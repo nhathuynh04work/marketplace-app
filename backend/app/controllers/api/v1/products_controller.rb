@@ -5,7 +5,7 @@ class Api::V1::ProductsController < ApplicationController
                       .with_attached_images
                       .includes(:shop, :category, :shop_category)
 
-    render_success(data: { products: ProductBlueprint.render_as_hash(products) })
+    render json: { products: ProductBlueprint.render_as_hash(products) }, status: :ok
   end
 
   def show
@@ -15,9 +15,9 @@ class Api::V1::ProductsController < ApplicationController
                       .find_by(id: params[:id])
 
     if product
-      render_success(data: { product: ProductBlueprint.render_as_hash(product) })
+      render json: { product: ProductBlueprint.render_as_hash(product) }, status: :ok
     else
-      render_error(message: "Product not found", status: :not_found)
+      render json: { errors: "Product not found" }, status: :not_found
     end
   end
 end
