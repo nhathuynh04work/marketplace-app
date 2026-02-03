@@ -3,6 +3,7 @@
 import { API_URLS } from "@/lib/routes";
 import { getSession } from "@/lib/session";
 import { Product } from "@/types/vendor";
+import { redirect } from "next/navigation";
 
 interface CreateProductParams {
 	data: FormData;
@@ -32,6 +33,9 @@ export async function getVendorProducts(): Promise<Product[]> {
 	const data = await response.json() as { products: Product[] } | { errors: string };
 
 	if (!response.ok) {
+		if (response.status === 401) {
+			redirect("/api/auth/logout");
+		}
 		const errorData = data as { errors: string };
 		throw new Error(errorData.errors || "Failed to fetch products");
 	}
@@ -50,6 +54,9 @@ export async function getVendorProduct({ id }: GetProductParams): Promise<Produc
 	const data = await response.json() as { product: Product } | { errors: string };
 
 	if (!response.ok) {
+		if (response.status === 401) {
+			redirect("/api/auth/logout");
+		}
 		const errorData = data as { errors: string };
 		throw new Error(errorData.errors || "Failed to fetch product");
 	}
@@ -70,6 +77,9 @@ export async function createProduct({ data }: CreateProductParams): Promise<Prod
 	const responseData = await response.json() as { product: Product } | { errors: string };
 
 	if (!response.ok) {
+		if (response.status === 401) {
+			redirect("/api/auth/logout");
+		}
 		const errorData = responseData as { errors: string };
 		throw new Error(errorData.errors || "Failed to create product");
 	}
@@ -90,6 +100,9 @@ export async function updateProduct({ id, data }: UpdateProductParams): Promise<
 	const responseData = await response.json() as { product: Product } | { errors: string };
 
 	if (!response.ok) {
+		if (response.status === 401) {
+			redirect("/api/auth/logout");
+		}
 		const errorData = responseData as { errors: string };
 		throw new Error(errorData.errors || "Failed to update product");
 	}
@@ -107,6 +120,9 @@ export async function deleteProduct({ id }: DeleteProductParams): Promise<void> 
 	});
 
 	if (!response.ok) {
+		if (response.status === 401) {
+			redirect("/api/auth/logout");
+		}
 		const data = await response.json() as { errors: string };
 		throw new Error(data.errors || "Failed to delete product");
 	}

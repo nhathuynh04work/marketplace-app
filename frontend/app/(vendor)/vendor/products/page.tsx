@@ -11,10 +11,9 @@ import {
 import { Plus, Package, Pencil } from "lucide-react";
 import Link from "next/link";
 import { APP_ROUTES } from "@/lib/routes";
-import { withAuth } from "@/lib/auth-wrapper";
 
 export default async function VendorProductsPage() {
-	const products = await withAuth(() => getVendorProducts());
+	const products = await getVendorProducts();
 
 	return (
 		<div className="space-y-8">

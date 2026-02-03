@@ -3,6 +3,7 @@
 import { API_URLS } from "@/lib/routes";
 import { getSession } from "@/lib/session";
 import { ShopCategory, GlobalCategory } from "@/types/vendor";
+import { redirect } from "next/navigation";
 
 interface CreateCategoryParams {
     name: string;
@@ -29,6 +30,9 @@ export async function getShopCategories(): Promise<ShopCategory[]> {
     const data = await response.json() as ShopCategory[] | { errors: string };
 
     if (!response.ok) {
+        if (response.status === 401) {
+            redirect("/api/auth/logout");
+        }
         const errorData = data as { errors: string };
         throw new Error(errorData.errors || "Failed to fetch categories");
     }
@@ -48,6 +52,9 @@ export async function getShopCategory(id: string | number): Promise<ShopCategory
     const data = await response.json() as ShopCategory | { errors: string };
 
     if (!response.ok) {
+        if (response.status === 401) {
+            redirect("/api/auth/logout");
+        }
         const errorData = data as { errors: string };
         throw new Error(errorData.errors || "Failed to fetch category");
     }
@@ -69,6 +76,9 @@ export async function createShopCategory({ name }: CreateCategoryParams): Promis
     const data = await response.json() as ShopCategory | { errors: string };
 
     if (!response.ok) {
+        if (response.status === 401) {
+            redirect("/api/auth/logout");
+        }
         const errorData = data as { errors: string };
         throw new Error(errorData.errors || "Failed to create category");
     }
@@ -90,6 +100,9 @@ export async function updateShopCategory({ id, name }: UpdateCategoryParams): Pr
     const data = await response.json() as ShopCategory | { errors: string };
 
     if (!response.ok) {
+        if (response.status === 401) {
+            redirect("/api/auth/logout");
+        }
         const errorData = data as { errors: string };
         throw new Error(errorData.errors || "Failed to update category");
     }
@@ -108,6 +121,9 @@ export async function deleteShopCategory({ id }: DeleteCategoryParams): Promise<
     });
 
     if (!response.ok) {
+        if (response.status === 401) {
+            redirect("/api/auth/logout");
+        }
         const data = await response.json() as { errors: string };
         throw new Error(data.errors || "Failed to delete category");
     }

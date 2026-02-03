@@ -1,15 +1,7 @@
 class JsonWebToken
   SECRET_KEY = Rails.application.credentials.secret_key_base.to_s
 
-  def self.encode(payload, exp = nil)
-    # Allow environment variable to override default expiration time
-    # Useful for testing with short-lived tokens
-    exp ||= if ENV['JWT_EXPIRATION_SECONDS'].present?
-              ENV['JWT_EXPIRATION_SECONDS'].to_i.seconds.from_now
-            else
-              24.hours.from_now
-            end
-
+  def self.encode(payload, exp = 24.hours.from_now)
     payload[:exp] = exp.to_i
     JWT.encode(payload, SECRET_KEY)
   end

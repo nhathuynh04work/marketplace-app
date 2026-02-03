@@ -3,6 +3,7 @@
 import { API_URLS } from "@/lib/routes";
 import { getSession } from "@/lib/session";
 import { VendorStatus, Shop } from "@/types/vendor";
+import { redirect } from "next/navigation";
 
 interface RegisterShopParams {
     data: FormData;
@@ -21,6 +22,9 @@ export async function getVendorStatus(): Promise<VendorStatus> {
     });
 
     if (!response.ok) {
+        if (response.status === 401) {
+            redirect("/api/auth/logout");
+        }
         throw new Error("Failed to fetch vendor status");
     }
 
@@ -40,6 +44,9 @@ export async function getVendorShop(): Promise<Shop> {
     const data = await response.json() as { has_shop: boolean; shop: Shop | null };
     
     if (!response.ok) {
+        if (response.status === 401) {
+            redirect("/api/auth/logout");
+        }
         throw new Error("Failed to fetch shop");
     }
 
@@ -63,6 +70,9 @@ export async function registerShop({ data }: RegisterShopParams): Promise<Shop> 
     const responseData = await response.json() as { shop?: Shop; errors?: string };
 
     if (!response.ok) {
+        if (response.status === 401) {
+            redirect("/api/auth/logout");
+        }
         throw new Error(responseData.errors || "Failed to register shop");
     }
     
