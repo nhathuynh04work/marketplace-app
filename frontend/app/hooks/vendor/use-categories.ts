@@ -1,26 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-	getShopCategories,
 	createShopCategory,
 	updateShopCategory,
 	deleteShopCategory,
-	getGlobalCategories,
 } from "@/app/actions/vendor/categories";
-import { ShopCategory, GlobalCategory } from "@/types/vendor";
-
-export const useShopCategories = () => {
-	return useQuery<ShopCategory[], Error>({
-		queryKey: ["vendor", "categories"],
-		queryFn: getShopCategories,
-	});
-};
-
-export const useGlobalCategories = () => {
-	return useQuery<GlobalCategory[], Error>({
-		queryKey: ["global", "categories"],
-		queryFn: getGlobalCategories,
-	});
-};
+import { ShopCategory } from "@/types/vendor";
 
 export const useCreateShopCategory = () => {
 	const queryClient = useQueryClient();

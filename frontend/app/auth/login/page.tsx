@@ -28,8 +28,8 @@ export default function LoginPage() {
 					toast.success("Welcome back!");
 					router.push("/");
 				},
-				onError: (error) => {
-					if (!(error as any).fieldErrors) {
+				onError: (error: Error & { fieldErrors?: Record<string, string[]> }) => {
+					if (!error.fieldErrors) {
 						toast.error(error.message || "Login failed. Please try again.");
 					}
 				},
@@ -37,8 +37,8 @@ export default function LoginPage() {
 		);
 	};
 
-	const fieldErrors = loginMutation.error && (loginMutation.error as any).fieldErrors
-		? (loginMutation.error as any).fieldErrors
+	const fieldErrors = loginMutation.error && (loginMutation.error as Error & { fieldErrors?: Record<string, string[]> }).fieldErrors
+		? (loginMutation.error as Error & { fieldErrors?: Record<string, string[]> }).fieldErrors
 		: undefined;
 
 	return (
@@ -72,7 +72,7 @@ export default function LoginPage() {
 
 			{/* Right Side: Form */}
 			<div className="flex items-center justify-center py-12 bg-background">
-				<div className="mx-auto grid w-87.5 gap-6">
+				<div className="mx-auto grid w-[350px] gap-6">
 					<div className="grid gap-2 text-center">
 						<h1 className="text-3xl font-bold">Login</h1>
 						<p className="text-balance text-muted-foreground">
@@ -80,12 +80,12 @@ export default function LoginPage() {
 						</p>
 					</div>
 
-					<form onSubmit={handleSubmit} className="grid gap-4">
-						{loginMutation.error && !(loginMutation.error as any).fieldErrors && (
-							<div className="text-sm text-destructive font-medium">
-								{loginMutation.error.message}
-							</div>
-						)}
+				<form onSubmit={handleSubmit} className="grid gap-4">
+					{loginMutation.error && !(loginMutation.error as Error & { fieldErrors?: Record<string, string[]> }).fieldErrors && (
+						<div className="text-sm text-destructive font-medium">
+							{loginMutation.error.message}
+						</div>
+					)}
 
 						<div className="grid gap-2">
 							<Label htmlFor="email">Email</Label>

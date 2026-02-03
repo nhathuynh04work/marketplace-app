@@ -3,6 +3,7 @@
 import { getSession } from "@/lib/session";
 import { APIResponse } from "@/types/api";
 import { API_BASE } from "./routes";
+import { clearSessionAndRedirect } from "@/app/actions/auth";
 
 type ErrorWithFieldErrors = Error & {
     fieldErrors?: Record<string, string[]>;
@@ -69,6 +70,7 @@ export async function apiFetch<T = unknown>(
         switch (response.status) {
             case 401:
                 console.error("[apiFetch] Unauthorized:", { url, message });
+                await clearSessionAndRedirect();
 
             case 422:
                 const fieldErrors = typeof data.errors === "object" && data.errors !== null

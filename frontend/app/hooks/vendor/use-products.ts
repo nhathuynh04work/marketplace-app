@@ -1,27 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-	getVendorProducts,
-	getVendorProduct,
 	createProduct,
 	updateProduct,
 	deleteProduct,
 } from "@/app/actions/vendor/products";
 import { Product } from "@/types/vendor";
-
-export const useVendorProducts = () => {
-	return useQuery<Product[], Error>({
-		queryKey: ["vendor", "products"],
-		queryFn: getVendorProducts,
-	});
-};
-
-export const useVendorProduct = (id: number) => {
-	return useQuery<Product, Error>({
-		queryKey: ["vendor", "products", id],
-		queryFn: () => getVendorProduct({ id }),
-		enabled: !!id,
-	});
-};
 
 export const useCreateProduct = () => {
 	const queryClient = useQueryClient();

@@ -1,25 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
 	registerShop,
-	getVendorStatus,
-	getVendorShop,
 	updateShop,
 } from "@/app/actions/vendor/shops";
-import { VendorStatus, Shop } from "@/types/vendor";
-
-export const useVendorStatus = () => {
-	return useQuery<VendorStatus, Error>({
-		queryKey: ["vendor", "status"],
-		queryFn: getVendorStatus,
-	});
-};
-
-export const useVendorShop = () => {
-	return useQuery<Shop, Error>({
-		queryKey: ["vendor", "shop"],
-		queryFn: getVendorShop,
-	});
-};
+import {  Shop } from "@/types/vendor";
 
 export const useRegisterShop = () => {
 	const queryClient = useQueryClient();

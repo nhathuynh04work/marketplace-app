@@ -28,8 +28,8 @@ export default function SignupPage() {
 					toast.success("Account created! Welcome aboard.");
 					router.push("/");
 				},
-				onError: (error) => {
-					if (!(error as any).fieldErrors) {
+				onError: (error: Error & { fieldErrors?: Record<string, string[]> }) => {
+					if (!error.fieldErrors) {
 						toast.error(error.message || "Signup failed. Please try again.");
 					}
 				},
@@ -37,14 +37,14 @@ export default function SignupPage() {
 		);
 	};
 
-	const fieldErrors = signupMutation.error && (signupMutation.error as any).fieldErrors
-		? (signupMutation.error as any).fieldErrors
+	const fieldErrors = signupMutation.error && (signupMutation.error as Error & { fieldErrors?: Record<string, string[]> }).fieldErrors
+		? (signupMutation.error as Error & { fieldErrors?: Record<string, string[]> }).fieldErrors
 		: undefined;
 
 	return (
 		<div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
 			{/* Left Side: Orange/Red Gradient */}
-			<div className="hidden bg-linear-to-br from-orange-900 to-red-950 lg:flex flex-col justify-between p-10 text-white">
+			<div className="hidden bg-gradient-to-br from-orange-900 to-red-950 lg:flex flex-col justify-between p-10 text-white">
 				<div className="flex items-center gap-2 text-lg font-medium">
 					<Store className="h-6 w-6" />
 					<span>Marketplace Inc</span>
@@ -76,7 +76,7 @@ export default function SignupPage() {
 
 			{/* Right Side: Form */}
 			<div className="flex items-center justify-center py-12 bg-background">
-				<div className="mx-auto grid w-87.5 gap-6">
+				<div className="mx-auto grid w-[350px] gap-6">
 					<div className="grid gap-2 text-center">
 						<h1 className="text-3xl font-bold">
 							Create an account
@@ -86,12 +86,12 @@ export default function SignupPage() {
 						</p>
 					</div>
 
-					<form onSubmit={handleSubmit} className="grid gap-4">
-						{signupMutation.error && !(signupMutation.error as any).fieldErrors && (
-							<div className="text-sm text-destructive font-medium">
-								{signupMutation.error.message}
-							</div>
-						)}
+				<form onSubmit={handleSubmit} className="grid gap-4">
+					{signupMutation.error && !(signupMutation.error as Error & { fieldErrors?: Record<string, string[]> }).fieldErrors && (
+						<div className="text-sm text-destructive font-medium">
+							{signupMutation.error.message}
+						</div>
+					)}
 
 						<div className="grid gap-2">
 							<Label htmlFor="email">Email</Label>

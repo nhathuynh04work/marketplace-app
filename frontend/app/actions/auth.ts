@@ -1,6 +1,6 @@
 "use server";
 
-import { API_ROUTES, API_BASE } from "@/lib/routes";
+import { API_ROUTES } from "@/lib/routes";
 import { createSession, deleteSession } from "@/lib/session";
 import { User } from "@/types/user";
 import { redirect } from "next/navigation";
@@ -21,7 +21,7 @@ interface SignupParams {
 }
 
 export async function login({ email, password }: LoginParams): Promise<{ user: User }> {
-	const url = `${API_BASE}${API_ROUTES.AUTH.LOGIN}`;
+	const url = `${API_ROUTES.AUTH.LOGIN}`;
 	
 	let response: Response;
 	try {
@@ -52,11 +52,6 @@ export async function login({ email, password }: LoginParams): Promise<{ user: U
 	if (!response.ok || !data.success) {
 		const message = data.message || `Login failed with status ${response.status}`;
 		
-		if (response.status === 401) {
-			console.error("[login] Unauthorized:", { message });
-			throw new Error(message);
-		}
-		
 		if (response.status === 422) {
 			const fieldErrors = typeof data.errors === "object" && data.errors !== null
 				? (data.errors as Record<string, string[]>)
@@ -83,7 +78,7 @@ export async function login({ email, password }: LoginParams): Promise<{ user: U
 }
 
 export async function signup({ email, password }: SignupParams): Promise<{ user: User }> {
-	const url = `${API_BASE}${API_ROUTES.AUTH.SIGNUP}`;
+	const url = `${API_ROUTES.AUTH.SIGNUP}`;
 	
 	let response: Response;
 	try {
@@ -144,6 +139,7 @@ export async function logoutAction() {
 	redirect("/");
 }
 
-export async function clearSessionAction() {
+export async function clearSessionAndRedirect() {
 	await deleteSession();
+	redirect("/auth/login");
 }
