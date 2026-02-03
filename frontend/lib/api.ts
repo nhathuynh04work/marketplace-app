@@ -3,7 +3,6 @@
 import { getSession } from "@/lib/session";
 import { APIResponse } from "@/types/api";
 import { API_BASE } from "./routes";
-import { clearSessionAndRedirect } from "@/app/actions/auth";
 
 type ErrorWithFieldErrors = Error & {
     fieldErrors?: Record<string, string[]>;
@@ -66,31 +65,15 @@ export async function apiFetch<T = unknown>(
 
     if (!response.ok) {
         const message = data.message || `Request failed with status ${response.status}`;
-
-        switch (response.status) {
-            case 401:
-                console.error("[apiFetch] Unauthorized:", { url, message });
-                await clearSessionAndRedirect();
-
-            case 422:
-                const fieldErrors = typeof data.errors === "object" && data.errors !== null
-                    ? (data.errors as Record<string, string[]>)
-                    : undefined;
-                console.error("[apiFetch] Validation error:", { url, message, fieldErrors });
-                const validationError = new Error(message) as ErrorWithFieldErrors;
-                validationError.fieldErrors = fieldErrors;
-                throw validationError;
-
-            default:
-                console.error("[apiFetch] API error:", { url, status: response.status, message });
-                throw new Error(message);
-        }
-    }
-
-    if (!data.success) {
-        const message = data.message || "Request failed";
-        console.error("[apiFetch] Request failed:", { url, message });
-        throw new Error(message);
+        const fieldErrors = typeof data.errors === "object" && data.errors !== null
+            ? (data.errors as Record<string, string[]>)
+            : undefined;
+        
+        console.error("[apiFetch] API error:", { url, status: response.status, message, fieldErrors });
+        
+        const error = new Error(message) as ErrorWithFieldErrors;
+        error.fieldErrors = fieldErrors;
+        throw error;
     }
 
     return (data.data !== undefined && data.data !== null ? data.data : data) as T;

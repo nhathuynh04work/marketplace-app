@@ -20,7 +20,7 @@ interface SignupParams {
 	password: string;
 }
 
-export async function login({ email, password }: LoginParams): Promise<{ user: User }> {
+export async function loginAction({ email, password }: LoginParams): Promise<{ user: User }> {
 	const url = `${API_ROUTES.AUTH.LOGIN}`;
 	
 	let response: Response;
@@ -77,7 +77,7 @@ export async function login({ email, password }: LoginParams): Promise<{ user: U
 	return data.data as { user: User };
 }
 
-export async function signup({ email, password }: SignupParams): Promise<{ user: User }> {
+export async function signupAction({ email, password }: SignupParams): Promise<{ user: User }> {
 	const url = `${API_ROUTES.AUTH.SIGNUP}`;
 	
 	let response: Response;
@@ -137,9 +137,4 @@ export async function signup({ email, password }: SignupParams): Promise<{ user:
 export async function logoutAction() {
 	await deleteSession();
 	redirect("/");
-}
-
-export async function clearSessionAndRedirect() {
-	await deleteSession();
-	redirect("/auth/login");
 }

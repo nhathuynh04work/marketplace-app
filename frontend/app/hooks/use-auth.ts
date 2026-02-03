@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { login, signup } from "@/app/actions/auth";
+import { loginAction, signupAction } from "@/app/actions/auth";
 import { User } from "@/types/user";
 
 interface LoginParams {
@@ -16,12 +16,12 @@ interface SignupParams {
 
 export const useLogin = () => {
 	return useMutation<{ user: User }, Error, LoginParams>({
-		mutationFn: login,
+		mutationFn: loginAction,
 	});
 };
 
 export const useSignup = () => {
 	return useMutation<{ user: User }, Error, SignupParams>({
-		mutationFn: signup,
+		mutationFn: signupAction,
 	});
 };
