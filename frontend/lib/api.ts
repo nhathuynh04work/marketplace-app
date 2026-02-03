@@ -5,7 +5,7 @@ import { APIResponse } from "@/types/api";
 import { API_BASE } from "./routes";
 
 type ErrorWithFieldErrors = Error & {
-	fieldErrors?: Record<string, string[]>;
+    fieldErrors?: Record<string, string[]>;
 };
 
 type ApiFetchOptions = RequestInit & {
