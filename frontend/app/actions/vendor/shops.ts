@@ -1,6 +1,6 @@
 "use server";
 
-import { fetchQuery, fetchMutation } from "@/lib/action-utils";
+import { apiFetch } from "@/lib/api";
 import { VendorStatus, Shop } from "@/types/vendor";
 
 interface RegisterShopParams {
@@ -12,24 +12,30 @@ interface UpdateShopParams {
 }
 
 export async function getVendorStatus(): Promise<VendorStatus> {
-    return fetchQuery<VendorStatus>("/shops/status");
+    return apiFetch<VendorStatus>("/shops/status", {
+        requiresAuth: true,
+    });
 }
 
 export async function getVendorShop(): Promise<Shop> {
-    return fetchQuery<Shop>("/vendor/shop");
+    return apiFetch<Shop>("/vendor/shop", {
+        requiresAuth: true,
+    });
 }
 
 export async function registerShop({ data }: RegisterShopParams): Promise<Shop> {
-    const response = await fetchMutation<{ shop: Shop }>("/shops", {
+    const response = await apiFetch<{ shop: Shop }>("/shops", {
         method: "POST",
         body: data,
+        requiresAuth: true,
     });
     return response.shop;
 }
 
 export async function updateShop({ data }: UpdateShopParams): Promise<Shop> {
-    return fetchMutation<Shop>("/vendor/shop", {
+    return apiFetch<Shop>("/vendor/shop", {
         method: "PUT",
         body: data,
+        requiresAuth: true,
     });
 }

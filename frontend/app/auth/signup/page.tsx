@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect } from "react";
-import { signupAction } from "@/app/actions/auth";
+import { FormEvent } from "react";
+import { useSignup } from "@/app/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,15 +12,34 @@ import { Store, Rocket } from "lucide-react";
 import { APP_ROUTES } from "@/lib/routes";
 
 export default function SignupPage() {
-	const [state, action, isPending] = useActionState(signupAction, null);
 	const router = useRouter();
+	const signupMutation = useSignup();
 
-	useEffect(() => {
-		if (state?.status === "success") {
-			toast.success("Account created! Welcome aboard.");
-			router.push("/");
-		}
-	}, [state, router]);
+	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const formData = new FormData(e.currentTarget);
+		const email = formData.get("email") as string;
+		const password = formData.get("password") as string;
+
+		signupMutation.mutate(
+			{ email, password },
+			{
+				onSuccess: () => {
+					toast.success("Account created! Welcome aboard.");
+					router.push("/");
+				},
+				onError: (error) => {
+					if (!(error as any).fieldErrors) {
+						toast.error(error.message || "Signup failed. Please try again.");
+					}
+				},
+			}
+		);
+	};
+
+	const fieldErrors = signupMutation.error && (signupMutation.error as any).fieldErrors
+		? (signupMutation.error as any).fieldErrors
+		: undefined;
 
 	return (
 		<div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
@@ -67,10 +86,10 @@ export default function SignupPage() {
 						</p>
 					</div>
 
-					<form action={action} className="grid gap-4">
-						{state?.status === "error" && !state.fieldErrors && (
+					<form onSubmit={handleSubmit} className="grid gap-4">
+						{signupMutation.error && !(signupMutation.error as any).fieldErrors && (
 							<div className="text-sm text-destructive font-medium">
-								{state.message}
+								{signupMutation.error.message}
 							</div>
 						)}
 
@@ -83,14 +102,14 @@ export default function SignupPage() {
 								placeholder="m@example.com"
 								required
 								className={
-									state?.fieldErrors?.email
+									fieldErrors?.email
 										? "border-destructive"
 										: ""
 								}
 							/>
-							{state?.fieldErrors?.email && (
+							{fieldErrors?.email && (
 								<p className="text-xs text-destructive">
-									{state.fieldErrors.email[0]}
+									{fieldErrors.email[0]}
 								</p>
 							)}
 						</div>
@@ -103,14 +122,14 @@ export default function SignupPage() {
 								type="password"
 								required
 								className={
-									state?.fieldErrors?.password
+									fieldErrors?.password
 										? "border-destructive"
 										: ""
 								}
 							/>
-							{state?.fieldErrors?.password && (
+							{fieldErrors?.password && (
 								<p className="text-xs text-destructive">
-									{state.fieldErrors.password[0]}
+									{fieldErrors.password[0]}
 								</p>
 							)}
 						</div>
@@ -118,8 +137,8 @@ export default function SignupPage() {
 						<Button
 							type="submit"
 							className="w-full"
-							disabled={isPending}>
-							{isPending ? "Creating account..." : "Sign Up"}
+							disabled={signupMutation.isPending}>
+							{signupMutation.isPending ? "Creating account..." : "Sign Up"}
 						</Button>
 					</form>
 

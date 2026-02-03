@@ -1,6 +1,6 @@
 "use server";
 
-import { fetchQuery, fetchMutation } from "@/lib/action-utils";
+import { apiFetch } from "@/lib/api";
 import { Product } from "@/types/vendor";
 
 interface CreateProductParams {
@@ -21,33 +21,40 @@ interface GetProductParams {
 }
 
 export async function getVendorProducts(): Promise<Product[]> {
-	const response = await fetchQuery<{ products: Product[] }>("/vendor/products");
+	const response = await apiFetch<{ products: Product[] }>("/vendor/products", {
+		requiresAuth: true,
+	});
 	return response.products;
 }
 
 export async function getVendorProduct({ id }: GetProductParams): Promise<Product> {
-	const response = await fetchQuery<{ product: Product }>(`/vendor/products/${id}`);
+	const response = await apiFetch<{ product: Product }>(`/vendor/products/${id}`, {
+		requiresAuth: true,
+	});
 	return response.product;
 }
 
 export async function createProduct({ data }: CreateProductParams): Promise<Product> {
-	const response = await fetchMutation<{ product: Product }>("/vendor/products", {
+	const response = await apiFetch<{ product: Product }>("/vendor/products", {
 		method: "POST",
 		body: data,
+		requiresAuth: true,
 	});
 	return response.product;
 }
 
 export async function updateProduct({ id, data }: UpdateProductParams): Promise<Product> {
-	const response = await fetchMutation<{ product: Product }>(`/vendor/products/${id}`, {
+	const response = await apiFetch<{ product: Product }>(`/vendor/products/${id}`, {
 		method: "PUT",
 		body: data,
+		requiresAuth: true,
 	});
 	return response.product;
 }
 
 export async function deleteProduct({ id }: DeleteProductParams): Promise<void> {
-	return fetchMutation<void>(`/vendor/products/${id}`, {
+	await apiFetch<void>(`/vendor/products/${id}`, {
 		method: "DELETE",
+		requiresAuth: true,
 	});
 }

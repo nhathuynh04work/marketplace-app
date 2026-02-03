@@ -1,6 +1,6 @@
 "use server";
 
-import { fetchQuery, fetchMutation } from "@/lib/action-utils";
+import { apiFetch } from "@/lib/api";
 import { ShopCategory, GlobalCategory } from "@/types/vendor";
 
 interface CreateCategoryParams {
@@ -17,33 +17,42 @@ interface DeleteCategoryParams {
 }
 
 export async function getShopCategories(): Promise<ShopCategory[]> {
-    return fetchQuery<ShopCategory[]>("/vendor/categories");
+    return apiFetch<ShopCategory[]>("/vendor/categories", {
+        requiresAuth: true,
+    });
 }
 
 export async function getShopCategory(id: string | number): Promise<ShopCategory> {
-    return fetchQuery<ShopCategory>(`/vendor/categories/${id}`);
+    return apiFetch<ShopCategory>(`/vendor/categories/${id}`, {
+        requiresAuth: true,
+    });
 }
 
 export async function createShopCategory({ name }: CreateCategoryParams): Promise<ShopCategory> {
-    return fetchMutation<ShopCategory>("/vendor/categories", {
+    return apiFetch<ShopCategory>("/vendor/categories", {
         method: "POST",
         body: JSON.stringify({ name }),
+        requiresAuth: true,
     });
 }
 
 export async function updateShopCategory({ id, name }: UpdateCategoryParams): Promise<ShopCategory> {
-    return fetchMutation<ShopCategory>(`/vendor/categories/${id}`, {
+    return apiFetch<ShopCategory>(`/vendor/categories/${id}`, {
         method: "PUT",
         body: JSON.stringify({ name }),
+        requiresAuth: true,
     });
 }
 
 export async function deleteShopCategory({ id }: DeleteCategoryParams): Promise<void> {
-    return fetchMutation<void>(`/vendor/categories/${id}`, {
+    await apiFetch<void>(`/vendor/categories/${id}`, {
         method: "DELETE",
+        requiresAuth: true,
     });
 }
 
 export async function getGlobalCategories(): Promise<GlobalCategory[]> {
-    return fetchQuery<GlobalCategory[]>("/categories");
+    return apiFetch<GlobalCategory[]>("/categories", {
+        requiresAuth: true,
+    });
 }
