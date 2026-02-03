@@ -1,8 +1,9 @@
 import { getVendorStatus } from "@/app/actions/vendor/shops";
 import AccountTabs from "@/components/account/account-tabs";
+import { withAuth } from "@/lib/auth-wrapper";
 
 export default async function AccountPage() {
-    const vendorStatus = await getVendorStatus();
+    const vendorStatus = await withAuth(() => getVendorStatus());
 
 	return (
 		<div className="container mx-auto py-10 px-4">

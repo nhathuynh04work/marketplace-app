@@ -4,13 +4,20 @@ import { getSession } from "@/lib/session";
 import { APIResponse } from "@/types/api";
 import { API_BASE } from "./routes";
 
-type ErrorWithFieldErrors = Error & {
-    fieldErrors?: Record<string, string[]>;
-};
-
 type ApiFetchOptions = RequestInit & {
     requiresAuth?: boolean;
 };
+
+class ApiError extends Error {
+    constructor(
+        message: string,
+        public errors?: Record<string, string[]> | string,
+        public statusCode?: number
+    ) {
+        super(message);
+        this.name = "ApiError";
+    }
+}
 
 export async function apiFetch<T = unknown>(
     endpoint: string,
@@ -19,16 +26,6 @@ export async function apiFetch<T = unknown>(
     const { requiresAuth = false, headers: customHeaders, body, ...rest } = options;
     const headers = new Headers(customHeaders);
 
-    if (body && !(body instanceof FormData)) {
-        if (!headers.has("Content-Type")) {
-            headers.set("Content-Type", "application/json");
-        }
-    }
-
-    if (!headers.has("Accept")) {
-        headers.set("Accept", "application/json");
-    }
-
     if (requiresAuth) {
         const token = await getSession();
         if (token) {
@@ -36,45 +33,37 @@ export async function apiFetch<T = unknown>(
         }
     }
 
-    const url = endpoint.startsWith("http")
-        ? endpoint
-        : `${API_BASE}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
+    const url = `${API_BASE}/${endpoint}`;
 
-    let response: Response;
     try {
-        response = await fetch(url, {
+        const response = await fetch(url, {
             headers,
             body,
             ...rest,
         });
+
+        const jsonResponse = (await response.json()) as APIResponse<T>;
+
+        if (!jsonResponse.success) {
+            throw new ApiError(
+                jsonResponse.message || "API request failed",
+                jsonResponse.errors,
+                response.status
+            );
+        }
+
+        return jsonResponse.data as T;
     } catch (error) {
-        const message = error instanceof Error ? error.message : "Network error occurred";
-        console.error("[apiFetch] Network error:", { url, error: message });
-        throw new Error(message);
-    }
-
-    let data: APIResponse<T>;
-    try {
-        data = (await response.json()) as APIResponse<T>;
-    } catch {
-        data = {
-            success: false,
-            message: `Server returned invalid JSON (${response.status} ${response.statusText})`,
-        };
-    }
-
-    if (!response.ok) {
-        const message = data.message || `Request failed with status ${response.status}`;
-        const fieldErrors = typeof data.errors === "object" && data.errors !== null
-            ? (data.errors as Record<string, string[]>)
-            : undefined;
+        if (error instanceof ApiError) {
+            throw error;
+        }
         
-        console.error("[apiFetch] API error:", { url, status: response.status, message, fieldErrors });
-        
-        const error = new Error(message) as ErrorWithFieldErrors;
-        error.fieldErrors = fieldErrors;
-        throw error;
+        console.error("Fetch error:", error);
+        throw new ApiError(
+            error instanceof Error ? error.message : "An unexpected error occurred",
+            "Network or parsing error"
+        );
     }
-
-    return (data.data !== undefined && data.data !== null ? data.data : data) as T;
 }
+
+export { ApiError };

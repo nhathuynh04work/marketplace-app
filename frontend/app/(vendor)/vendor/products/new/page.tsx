@@ -7,12 +7,15 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { APP_ROUTES } from "@/lib/routes";
 import { ProductForm } from "@/components/vendor/product-form";
+import { withAuth } from "@/lib/auth-wrapper";
 
 export default async function NewProductPage() {
-	const [shopCategories, globalCategories] = await Promise.all([
-		getShopCategories(),
-		getGlobalCategories(),
-	]);
+	const [shopCategories, globalCategories] = await withAuth(() =>
+		Promise.all([
+			getShopCategories(),
+			getGlobalCategories(),
+		])
+	);
 
 	return (
 		<div className="space-y-6">

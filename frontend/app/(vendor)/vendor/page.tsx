@@ -14,6 +14,7 @@ import {
 	ShoppingBag,
 	Users,
 } from "lucide-react";
+import { withAuth } from "@/lib/auth-wrapper";
 
 // Mock Data
 const MOCK_STATS = [
@@ -87,7 +88,7 @@ const RECENT_ORDERS = [
 ];
 
 export default async function VendorDashboard() {
-	const { has_shop, shop } = await getVendorStatus();
+	const { has_shop, shop } = await withAuth(() => getVendorStatus());
 
 	// CASE 1: No Shop -> Show Registration (Centered in the layout)
 	if (!has_shop) {

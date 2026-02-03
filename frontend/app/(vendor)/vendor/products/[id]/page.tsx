@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { APP_ROUTES } from "@/lib/routes";
 import { notFound } from "next/navigation";
+import { withAuth } from "@/lib/auth-wrapper";
 
 interface EditProductPageProps {
 	params: Promise<{ id: string }>;
@@ -19,11 +20,13 @@ export default async function EditProductPage({
 }: EditProductPageProps) {
 	const { id } = await params;
 
-	const [shopCategories, globalCategories, product] = await Promise.all([
-		getShopCategories(),
-		getGlobalCategories(),
-		getVendorProduct({ id: parseInt(id) }),
-	]);
+	const [shopCategories, globalCategories, product] = await withAuth(() =>
+		Promise.all([
+			getShopCategories(),
+			getGlobalCategories(),
+			getVendorProduct({ id: parseInt(id) }),
+		])
+	);
 
     console.log(shopCategories, globalCategories, product)
 

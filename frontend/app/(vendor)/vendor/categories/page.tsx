@@ -12,9 +12,10 @@ import {
 } from "@/components/ui/card";
 import { Plus, Folder, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { withAuth } from "@/lib/auth-wrapper";
 
 export default async function VendorCategoriesPage() {
-	const categories = await getShopCategories();
+	const categories = await withAuth(() => getShopCategories());
 
 	return (
 		<div className="space-y-6">

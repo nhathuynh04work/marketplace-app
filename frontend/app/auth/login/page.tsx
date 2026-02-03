@@ -1,19 +1,26 @@
 "use client";
 
-import { FormEvent } from "react";
+import { FormEvent, useEffect } from "react";
 import { useLogin } from "@/app/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Store } from "lucide-react"; 
 import { APP_ROUTES } from "@/lib/routes";
 
 export default function LoginPage() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const loginMutation = useLogin();
+
+	useEffect(() => {
+		if (searchParams.get("expired") === "true") {
+			toast.error("Your session has expired. Please log in again.");
+		}
+	}, [searchParams]);
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
