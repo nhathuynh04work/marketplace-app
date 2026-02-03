@@ -4,25 +4,21 @@ class Api::V1::ShopsController < ApplicationController
   def status
     shop_data = current_user.shop ? ShopBlueprint.render_as_hash(current_user.shop) : nil
 
-    render_success(
-      message: "Shop status retrieved",
-      data: {
-        has_shop: current_user.vendor?,
-        shop: shop_data
-      }
-    )
+    render json: {
+      has_shop: current_user.vendor?,
+      shop: shop_data
+    }, status: :ok
   end
 
   def create
-    return render_error(message: "You already have a shop", status: :conflict) if current_user.vendor?
+    return render json: { errors: "You already have a shop" }, status: :conflict if current_user.vendor?
 
     @shop = current_user.build_shop(shop_params)
 
     if @shop.save
-      data = { shop: ShopBlueprint.render_as_hash(@shop) }
-      render_success(message: "Shop created successfully!", data: data)
+      render json: { shop: ShopBlueprint.render_as_hash(@shop) }, status: :ok
     else
-      render_error(message: "Failed to register shop", errors: @shop.errors)
+      render json: { errors: @shop.errors }, status: :unprocessable_entity
     end
   end
 

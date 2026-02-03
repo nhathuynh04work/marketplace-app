@@ -32,7 +32,7 @@ module Authenticatable
 
   def authenticate_user!
     unless current_user
-      render_error(message: "Unauthorized access", status: :unauthorized)
+      render json: { errors: "Unauthorized access" }, status: :unauthorized
     end
   end
 

@@ -5,7 +5,7 @@ class Api::V1::CategoriesController < ApplicationController
     categories = Category.all.order(name: :asc)
     data = CategoryBlueprint.render_as_json(categories)
 
-    render_success(message: "Categories fetched", data: data)
+    render json: data, status: :ok
   end
 
 
@@ -13,26 +13,26 @@ class Api::V1::CategoriesController < ApplicationController
     categories = Category.roots.order(name: :asc)
     data = CategoryBlueprint.render_as_json(categories, view: :root_with_check)
 
-    render_success(message: "Root categories fetched", data: data)
+    render json: data, status: :ok
   end
 
   def show
     category = Category.find(params[:id])
     data = CategoryBlueprint.render_as_json(category, view: :tree)
 
-    render_success(message: "Category fetched", data: data)
+    render json: data, status: :ok
   rescue ActiveRecord::RecordNotFound
-    render_error(message: "Category not found", status: :not_found)
+    render json: { errors: "Category not found" }, status: :not_found
   end
 
   def create
     category = Category.new(category_params)
 
     if category.save
-        data = CategoryBlueprint.render_as_json(category)
-        render_success(message: "Category created", data: data)
+      data = CategoryBlueprint.render_as_json(category)
+      render json: data, status: :ok
     else
-       render_error(message: "Creation failed", errors: category.errors)
+      render json: { errors: category.errors }, status: :unprocessable_entity
     end
   end
 

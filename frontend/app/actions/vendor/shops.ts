@@ -1,6 +1,7 @@
 "use server";
 
-import { apiFetch } from "@/lib/api";
+import { API_URLS } from "@/lib/routes";
+import { getSession } from "@/lib/session";
 import { VendorStatus, Shop } from "@/types/vendor";
 
 interface RegisterShopParams {
@@ -12,30 +13,65 @@ interface UpdateShopParams {
 }
 
 export async function getVendorStatus(): Promise<VendorStatus> {
-    return apiFetch<VendorStatus>("/shops/status", {
-        requiresAuth: true,
+    const token = await getSession();
+    const response = await fetch(API_URLS.VENDOR.STATUS, {
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        },
     });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch vendor status");
+    }
+
+    const data = await response.json() as VendorStatus;
+    
+    return data;
 }
 
 export async function getVendorShop(): Promise<Shop> {
-    return apiFetch<Shop>("/vendor/shop", {
-        requiresAuth: true,
+    const token = await getSession();
+    const response = await fetch(API_URLS.VENDOR.STATUS, {
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        },
     });
+
+    const data = await response.json() as { has_shop: boolean; shop: Shop | null };
+    
+    if (!response.ok) {
+        throw new Error("Failed to fetch shop");
+    }
+
+    if (!data.shop) {
+        throw new Error("Shop not found");
+    }
+    
+    return data.shop;
 }
 
 export async function registerShop({ data }: RegisterShopParams): Promise<Shop> {
-    const response = await apiFetch<{ shop: Shop }>("/shops", {
+    const token = await getSession();
+    const response = await fetch(API_URLS.VENDOR.ROOT, {
         method: "POST",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        },
         body: data,
-        requiresAuth: true,
     });
-    return response.shop;
+
+    const responseData = await response.json() as { shop?: Shop; errors?: string };
+
+    if (!response.ok) {
+        throw new Error(responseData.errors || "Failed to register shop");
+    }
+    
+    return responseData.shop as Shop;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function updateShop({ data }: UpdateShopParams): Promise<Shop> {
-    return apiFetch<Shop>("/vendor/shop", {
-        method: "PUT",
-        body: data,
-        requiresAuth: true,
-    });
+    // Note: Backend doesn't have a shop update endpoint yet
+    // This is a placeholder that needs to be implemented on the backend
+    throw new Error("Shop update endpoint not implemented on backend");
 }

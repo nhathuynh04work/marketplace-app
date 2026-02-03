@@ -4,61 +4,49 @@ class Api::V1::Vendor::ProductsController < Api::V1::Vendor::BaseController
   def index
     products = @shop.products.ordered.with_attached_images
 
-    render_success(
-      message: "Products fetched successfully",
-      data: {
-        products: ProductBlueprint.render_as_hash(products)
-      }
-    )
+    render json: {
+      products: ProductBlueprint.render_as_hash(products)
+    }, status: :ok
   end
 
   def show
-    render_success(
-      message: "Product fetched successfully",
-      data: {
-        product: ProductBlueprint.render_as_hash(@product)
-      }
-    )
+    render json: {
+      product: ProductBlueprint.render_as_hash(@product)
+    }, status: :ok
   end
 
   def create
     @product = @shop.products.build(product_params)
 
     if @product.save
-      render_success(
-        message: "Product created successfully",
-        data: {
-          product: ProductBlueprint.render_as_hash(@product)
-        }
-      )
+      render json: {
+        product: ProductBlueprint.render_as_hash(@product)
+      }, status: :ok
     else
-      render_error(message: "Failed to create product", errors: @product.errors)
+      render json: { errors: @product.errors }, status: :unprocessable_entity
     end
   end
 
   def update
     if @product.update(product_params)
-      render_success(
-        message: "Product updated successfully",
-        data: {
-          product: ProductBlueprint.render_as_hash(@product)
-        }
-      )
+      render json: {
+        product: ProductBlueprint.render_as_hash(@product)
+      }, status: :ok
     else
-      render_error(message: "Failed to update product", errors: @product.errors)
+      render json: { errors: @product.errors }, status: :unprocessable_entity
     end
   end
 
   def destroy
     @product.destroy
-    render_success(message: "Product deleted successfully")
+    render json: {}, status: :ok
   end
 
   private
 
   def set_product
     @product = @shop.products.find_by(id: params[:id])
-    render_error(message: "Product not found", status: :not_found) unless @product
+    render json: { errors: "Product not found" }, status: :not_found unless @product
   end
 
   def product_params

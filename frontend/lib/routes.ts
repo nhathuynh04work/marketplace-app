@@ -1,6 +1,6 @@
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
-export const API_ROUTES = {
+export const API_URLS = {
 	AUTH: {
 		LOGIN: `${API_BASE}/auth/login`,
 		SIGNUP: `${API_BASE}/auth/signup`,

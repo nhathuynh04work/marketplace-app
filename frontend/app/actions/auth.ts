@@ -1,10 +1,9 @@
 "use server";
 
-import { API_ROUTES } from "@/lib/routes";
+import { API_URLS } from "@/lib/routes";
 import { createSession, deleteSession } from "@/lib/session";
 import { User } from "@/types/user";
 import { redirect } from "next/navigation";
-import { APIResponse } from "@/types/api";
 
 type ErrorWithFieldErrors = Error & {
 	fieldErrors?: Record<string, string[]>;
@@ -21,117 +20,89 @@ interface SignupParams {
 }
 
 export async function loginAction({ email, password }: LoginParams): Promise<{ user: User }> {
-	const url = `${API_ROUTES.AUTH.LOGIN}`;
-	
-	let response: Response;
 	try {
-		response = await fetch(url, {
+		const response = await fetch(API_URLS.AUTH.LOGIN, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"Accept": "application/json",
 			},
 			body: JSON.stringify({ user: { email, password } }),
 		});
-	} catch (error) {
-		const message = error instanceof Error ? error.message : "Network error occurred";
-		console.error("[login] Network error:", { url, error: message });
-		throw new Error(message);
-	}
 
-	let data: APIResponse<{ user: User }>;
-	try {
-		data = await response.json();
-	} catch {
-		data = {
-			success: false,
-			message: `Server returned invalid JSON (${response.status} ${response.statusText})`,
+		const data = await response.json() as {
+			user?: User;
+			errors?: Record<string, string[]> | string;
 		};
-	}
 
-	if (!response.ok || !data.success) {
-		const message = data.message || `Login failed with status ${response.status}`;
-		
-		if (response.status === 422) {
-			const fieldErrors = typeof data.errors === "object" && data.errors !== null
-				? (data.errors as Record<string, string[]>)
-				: undefined;
-			console.error("[login] Validation error:", { message, fieldErrors });
-			const error = new Error(message) as ErrorWithFieldErrors;
-			error.fieldErrors = fieldErrors;
+		if (!response.ok) {
+			if (data.errors) {
+				if (typeof data.errors === "string") {
+					throw new Error(data.errors);
+				} else {
+					const error = new Error("Validation failed") as ErrorWithFieldErrors;
+					error.fieldErrors = data.errors;
+					throw error;
+				}
+			}
+			throw new Error(`Login failed with status ${response.status}`);
+		}
+
+		const authHeader = response.headers.get("Authorization");
+		if (authHeader) {
+			const token = authHeader.split(" ")[1];
+			await createSession(token);
+		}
+
+		return { user: data.user as User };
+	} catch (error) {
+		if (error instanceof Error) {
 			throw error;
 		}
-		
-		console.error("[login] Login failed:", { status: response.status, message });
-		throw new Error(message);
+		throw new Error("Network error occurred");
 	}
-
-	const authHeader = response.headers.get("Authorization");
-	if (authHeader) {
-		const token = authHeader.split(" ")[1];
-		await createSession(token);
-	} else {
-		console.warn("[login] No Authorization header in response");
-	}
-
-	return data.data as { user: User };
 }
 
 export async function signupAction({ email, password }: SignupParams): Promise<{ user: User }> {
-	const url = `${API_ROUTES.AUTH.SIGNUP}`;
-	
-	let response: Response;
 	try {
-		response = await fetch(url, {
+		const response = await fetch(API_URLS.AUTH.SIGNUP, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"Accept": "application/json",
 			},
 			body: JSON.stringify({ user: { email, password } }),
 		});
-	} catch (error) {
-		const message = error instanceof Error ? error.message : "Network error occurred";
-		console.error("[signup] Network error:", { url, error: message });
-		throw new Error(message);
-	}
 
-	let data: APIResponse<{ user: User }>;
-	try {
-		data = await response.json();
-	} catch {
-		data = {
-			success: false,
-			message: `Server returned invalid JSON (${response.status} ${response.statusText})`,
+		const data = await response.json() as {
+			user?: User;
+			errors?: Record<string, string[]> | string;
 		};
-	}
 
-	if (!response.ok || !data.success) {
-		const message = data.message || `Signup failed with status ${response.status}`;
-		
-		if (response.status === 422) {
-			const fieldErrors = typeof data.errors === "object" && data.errors !== null
-				? (data.errors as Record<string, string[]>)
-				: undefined;
-			console.error("[signup] Validation error:", { message, fieldErrors });
-			const error = new Error(message) as ErrorWithFieldErrors;
-			error.fieldErrors = fieldErrors;
+		if (!response.ok) {
+			if (data.errors) {
+				if (typeof data.errors === "string") {
+					throw new Error(data.errors);
+				} else {
+					const error = new Error("Validation failed") as ErrorWithFieldErrors;
+					error.fieldErrors = data.errors;
+					throw error;
+				}
+			}
+			throw new Error(`Signup failed with status ${response.status}`);
+		}
+
+		const authHeader = response.headers.get("Authorization");
+		if (authHeader) {
+			const token = authHeader.split(" ")[1];
+			await createSession(token);
+		}
+
+		return { user: data.user as User };
+	} catch (error) {
+		if (error instanceof Error) {
 			throw error;
 		}
-		
-		console.error("[signup] Signup failed:", { status: response.status, message });
-		throw new Error(message);
+		throw new Error("Network error occurred");
 	}
-
-	const authHeader = response.headers.get("Authorization");
-	if (authHeader) {
-		const token = authHeader.split(" ")[1];
-		await createSession(token);
-	} else {
-		console.warn("[signup] No Authorization header in response");
-	}
-
-	return data.data as { user: User };
 }
 
 export async function logoutAction() {

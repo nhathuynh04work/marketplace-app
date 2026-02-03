@@ -4,16 +4,13 @@ class Api::V1::Shops::CategoriesController < ApplicationController
   def index
     categories = @shop.shop_categories.active.ordered
 
-    render_success(
-      message: "Shop categories fetched",
-      data: ShopCategoryBlueprint.render_as_hash(categories)
-    )
+    render json: ShopCategoryBlueprint.render_as_hash(categories), status: :ok
   end
 
   private
 
   def set_shop
     @shop = Shop.find_by(id: params[:shop_id])
-    render_error(message: "Shop not found", status: :not_found) unless @shop
+    render json: { errors: "Shop not found" }, status: :not_found unless @shop
   end
 end
