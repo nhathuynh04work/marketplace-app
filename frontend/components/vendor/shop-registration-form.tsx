@@ -47,14 +47,11 @@ export function ShopRegistrationForm() {
 	});
 
 	function onSubmit(values: ShopFormValues) {
-		const formData = new FormData();
-		formData.append("shop[name]", values.name);
-		if (values.description) {
-			formData.append("shop[description]", values.description);
-		}
-
 		registerShop(
-			{ data: formData },
+			{
+				name: values.name,
+				description: values.description || undefined,
+			},
 			{
 				onSuccess: () => {
 					toast.success("Shop registered successfully!");

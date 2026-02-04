@@ -75,24 +75,19 @@ export function ProductForm({
 	const isPending = isCreating || isUpdating;
 
 	function onSubmit(values: ProductFormValues) {
-		const formData = new FormData();
-		formData.append("product[name]", values.name);
-		if (values.description) {
-			formData.append("product[description]", values.description);
-		}
-		formData.append("product[price]", values.price);
-		formData.append("product[stock_quantity]", values.stock_quantity);
-		formData.append("product[status]", values.status);
-		if (values.shop_category_id && values.shop_category_id !== null) {
-			formData.append("product[shop_category_id]", values.shop_category_id);
-		}
-		if (values.category_id && values.category_id !== null) {
-			formData.append("product[category_id]", values.category_id);
-		}
+		const productData = {
+			name: values.name,
+			description: values.description || undefined,
+			price: values.price,
+			stock_quantity: values.stock_quantity,
+			status: values.status,
+			shop_category_id: values.shop_category_id || null,
+			category_id: values.category_id || null,
+		};
 
 		if (product) {
 			updateProduct(
-				{ id: product.id, data: formData },
+				{ id: product.id, ...productData },
 				{
 					onSuccess: () => {
 						toast.success("Product updated successfully");
@@ -103,7 +98,7 @@ export function ProductForm({
 			);
 		} else {
 			createProduct(
-				{ data: formData },
+				productData,
 				{
 					onSuccess: () => {
 						toast.success("Product created successfully");
